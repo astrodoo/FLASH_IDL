@@ -1,0 +1,115 @@
+pro jettrace
+
+xc0 = -2.e12 
+yc0 = 0. 
+zc0 = 0. 
+
+sample=4
+
+;velz = dload(700,var='velz',xc=xc0,yc=yc0,zc=zc0,x,y,z,sample=sample,time)
+;jet = dload(490,var='jet',xc=xc0,yc=yc0,zc=zc0,x,y,z,sample=sample,time)
+;jet = dload(891,var='jet',xc=xc0,yc=yc0,zc=zc0,x,y,z,sample=sample,time)
+jet = dload(1000,var='jet',xc=xc0,yc=yc0,zc=zc0,x,y,z,sample=sample,time)
+
+y0ind_tmp = where(y ge 0) & y0ind = y0ind_tmp[0]
+;velz2 = reform(velz[*,y0ind,*])
+jet2 = reform(jet[*,y0ind,*])
+
+z0ind_tmp = where(z ge 0) & z0ind = z0ind_tmp[0]
+sz = size(jet2,/dimension)
+z2 = z[z0ind:*]
+x2 = fltarr(sz[1]-z0ind)
+
+;crit=0.06
+crit=0.9
+
+for i=z0ind,sz[1]-1 do begin
+;    maxv_xind = where(velz2[*,i] eq max(velz2[*,i]),count)
+    maxj_xind = where(jet2[*,i] eq max(jet2[*,i]),count)
+    if (count ge 2) then maxj_xind = reform(maxj_xind[0]) 
+    if ((count eq 0) or (maxj_xind eq 0) or (max(jet2[*,i]) le crit)) then begin
+       x2[i-z0ind] = !values.f_nan
+    endif else begin
+       x2[i-z0ind] = x[maxj_xind] 
+    endelse
+endfor
+
+;x2[where(z2 le 0.5e12)]=!values.f_nan ; 1e37 case
+
+window,0
+plot,x2,z2,/iso
+
+;save,filename='jettrace_1e35_700.sav',x2,z2
+;save,filename='jettrace_1e36_800.sav',x2,z2
+;save,filename='jettrace_1e36_high_851.sav',x2,z2
+;save,filename='jettrace_1e36_high_891.sav',x2,z2
+;save,filename='jettrace_1e36_high_1000.sav',x2,z2
+;save,filename='jettrace_1e37_490.sav',x2,z2
+
+stop
+end
+
+;---------------------------------------------------------------------------------------
+pro jettrace2,ps=ps
+
+fname1 = '/d/d3/yoon/outputs/out_mHD_Binary_sphere/sphere_1e35/jettrace_1e35_700.sav'
+;fname2 = '/d/d3/yoon/outputs/out_mHD_Binary_sphere/sphere_1e36/jettrace_1e36_800.sav'
+fname3 = '/d/d7/yoon/out_FLASH3.3_mhd/out_mHD_Binary_sphere/sphere_1e37/jettrace_1e37_490.sav'
+;fname4 = '/d/d7/yoon/out_FLASH3.3_mhd/out_mHD_Binary_sphere/sphere_1e36_high/jettrace_1e36_high_851.sav'
+fname4 = '/d/d7/yoon/out_FLASH3.3_mhd/out_mHD_Binary_sphere/sphere_1e36_high/jettrace_1e36_high_891.sav'
+;fname4 = '/d/d7/yoon/out_FLASH3.3_mhd/out_mHD_Binary_sphere/sphere_1e36_high/jettrace_1e36_high_1000.sav'
+restore,filename=fname1 & x2_35 = x2 & z2_35 = z2
+;restore,filename=fname2 & x2_36 = x2 & z2_36 = z2
+restore,filename=fname3 & x2_37 = x2 & z2_37 = z2
+restore,filename=fname4 & x2_36h = x2 & z2_36h = z2
+
+
+loadct,39,/sil
+if keyword_set(ps) then mkeps,'jettrace',xs=22.,ys=20. $
+  else begin
+    !p.background=255 & !p.color=0
+    window,0,xs=800,ys=800
+endelse
+
+;plot,x2_35,z2_35,xr=[-1.5e13,2.e12],/xst,yr=[0.,1.5e13],yst=2,psym=1,/iso,xtitle='x [cm]',ytitle='z [cm]'
+plot,x2_35,z2_35,xr=[-1.e13,2.e12],/xst,yr=[0.,1.e13],yst=2,psym=1,/iso,xtitle='x [cm]',ytitle='z [cm]'
+;oplot,x2_36,z2_36,psym=1,color=50
+oplot,x2_37,z2_37,psym=1,color=250
+oplot,x2_36h,z2_36h,psym=1,color=50
+
+xc0=1.e12 & yc0=0.
+xc1=!x.crange[0]
+plotsym,3
+plots,xc0,yc0,/data,psym=8,symsize=3
+
+; fitted results
+ind35 = where(x2_35 le -5.e12)
+lin35 = linfit(x2_35[ind35],z2_35[ind35])
+oplot,[0,!x.crange[0]],[lin35[0],lin35[0]+lin35[1]*!x.crange[0]]
+;ind36 = where(z2_36 ge 3.e12)
+;lin36 = linfit(x2_36[ind36],z2_36[ind36])
+;oplot,[0,!x.crange[0]],[lin36[0],lin36[0]+lin36[1]*!x.crange[0]],color=50
+ind37 = where(z2_37 ge 3.e12)
+lin37 = linfit(x2_37[ind37],z2_37[ind37])
+oplot,[0,!x.crange[0]],[lin37[0],lin37[0]+lin37[1]*!x.crange[0]],color=250
+ind36h = where((z2_36h ge 3.e12) and (z2_36h le 8.e12))
+xx2 = x2_36h[ind36h] & xx2h = xx2[where(finite(xx2) eq 1)]
+zz2 = z2_36h[ind36h] & zz2h = zz2[where(finite(xx2) eq 1)]
+lin36h = linfit(xx2h,zz2h)
+oplot,[0,!x.crange[0]],[lin36h[0],lin36h[0]+lin36h[1]*!x.crange[0]],color=50
+
+
+;oplot,[xc0,xc1],[yc0, -tan(14.*!dtor)*(xc1-xc0)+yc0]
+;oplot,[xc0,xc1],[yc0, -tan(48.*!dtor)*(xc1-xc0)+yc0],color=50
+;oplot,[xc0,xc1],[yc0, -tan(75.*!dtor)*(xc1-xc0)+yc0],color=250
+
+
+oplot,[xc0,xc1],[yc0, -tan(16.69*!dtor)*(xc1-xc0)+yc0],line=2
+oplot,[xc0,xc1],[yc0, -tan(66.*!dtor)*(xc1-xc0)+yc0],color=50,line=2
+oplot,[xc0,xc1],[yc0, -tan(78.68*!dtor)*(xc1-xc0)+yc0],color=250,line=2
+
+
+legend,['1e37','1e36','1e35'],psym=1,color=[250,50,0],textcolor=[250,50,0],/left,/center,box=0
+if keyword_set(ps) then epsfree
+stop
+end
