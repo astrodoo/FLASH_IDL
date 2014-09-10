@@ -3,11 +3,11 @@ pro recoll,n
 
 fname = 'JetSet_hdf5_plt_cnt_'+string(n,format='(I4.4)')
 print,'reading file: ',fname
-outname = 'recoll_'+string(n,format='(I4.4)')
+outname = 'recoll_M30'+string(n,format='(I4.4)')
 
 xrange = [-2.5e12,-1.5e12]
 yrange = [-5.e11,5.e11]
-zrange = [-1.e11,1.e12]
+zrange = [-1.e11,1.5e12]
 sample=2
 
 mkdata=0
@@ -18,26 +18,79 @@ if (mkdata) then begin
        ,zra=zrange,sample=sample)
    j = loaddata(fname,'jet',xra=xrange,yra=yrange $
        ,zra=zrange,sample=sample)
-   save, file=outname, d,vz,j,x,y,z,time
-endif else restore, file=outname      ;mkdata
+   save, file=outname+'.sav', d,vz,j,x,y,z,time
+endif else restore, file=outname+'.sav'      ;mkdata
 
+xjind = where(x ge -2.e12) & xjind = reform(xjind[0])
+yjind = where(y ge 0.) & yjind = reform(yjind[0])
 zjind = where(z ge 0) & zjind = reform(zjind[0])
 
 sz = size(d,/dimension)
-window,0,xs=sz[0],ys=sz[2]
-tvscl,alog(reform(d[*,sz[1]/2,*]))
+loadct,0,/sil
+window,0,xs=sz[0]*2+sz[1],ys=sz[2]
+tvscl,alog(reform(d[*,sz[1]/2,*])),0
+xyouts,10,sz[2]-20,/dev,'M30'
+xyouts,10,sz[2]-50,/dev,'density in X-Z'
 
+loadct,39,/sil
+nl = 30
+lcolor = findgen(nl)/float(nl)*256.
 zind = zjind+1
-for i=0,20 do begin
+for i=0,nl-1 do begin
    zind = [zind, zjind+(i+1)*20]
-   plots,[0,511],[zind[i],zind[i]],/dev,thick=1
+   plots,[0,511],[zind[i],zind[i]],/dev,thick=1,color=lcolor[i]
 endfor
 
+; measuring the thickness
 jj = vz*j
-window,1
-contour, reform(jj[*,*,zind[0]]),x,y,/iso,xra=[-2.2e12,-1.8e12],yra=[-2.e11,2.e11],/xst,/yst,/nodata,levels=3.e8
-for i=0,20 do contour, reform(jj[*,*,zind[i]]),x,y,levels=3.e8,/overplot
+jcrit = 2.8e9
+jj2 = jj > jcrit
 
+jxl = fltarr(sz[2]-zind[0]) & jxr = fltarr(sz[2]-zind[0])
+jyl = fltarr(sz[2]-zind[0]) & jyr = fltarr(sz[2]-zind[0])
+zj  = z[zind[0]:*]
+for i=zind[0],sz[2]-1 do begin
+   jx = reform(jj[*,yjind,i])  
+   jxind = where(jx ge jcrit,count)
+   if (count ne 0) then begin
+      jxl[i-zind[0]] = x[jxind[0]] 
+      jxr[i-zind[0]] = x[jxind[n_elements(jxind)-1]]
+   endif else begin
+      jxl[i-zind[0]] = 0.
+      jxr[i-zind[0]] = 0.
+   endelse
+   jy = reform(jj[xjind,*,i])  
+   jyind = where(jy ge jcrit,count)
+   if (count ne 0) then begin
+      jyl[i-zind[0]] = y[jyind[0]] 
+      jyr[i-zind[0]] = y[jyind[n_elements(jyind)-1]]
+   endif else begin
+      jyl[i-zind[0]] = 0.
+      jyr[i-zind[0]] = 0.
+   endelse
+endfor
+
+save,file=outname+'_jet.sav', zj,jxl,jxr,jyl,jyr
+
+tvlct,r,g,b,/get
+tvlct,255,255,255,0
+tvlct,0,0,0,1
+tvcoord,reform(jj2[*,sz[1]/2,*]),x,z,pos=[sz[0],0],/scale
+oplot,jxl,zj,color=1,thick=3
+oplot,jxr,zj,color=1,thick=3
+xyouts,sz[0]+10,sz[2]-50,/dev,'j*vz>crit in X-Z',color=254
+tvcoord,reform(jj2[xjind,*,*]),y,z,pos=[sz[0]*2,0],/scale
+oplot,jyl,zj,color=1,thick=3
+oplot,jyr,zj,color=1,thick=3
+xyouts,sz[0]*2+10,sz[2]-50,/dev,'j*vz>crit in Y-Z',color=254
+tvlct,r,g,b
+
+mkeps,'recoll_M30_0365',xs=20.,ys=20.
+contour, reform(jj[*,*,zind[0]]),x,y,/iso,xra=[-2.1e12,-1.9e12],yra=[-1.e11,1.e11],/xst,/yst,/nodata,levels=jcrit, xtitle='x [cm]', ytitle='y [cm]'
+oplot,!x.crange,[0.,0.],line=1
+oplot,[-2.e12,-2.e12],!y.crange,line=1
+for i=0,nl-1 do contour, reform(jj[*,*,zind[i]]),x,y,levels=jcrit,/overplot,color=lcolor[i]
+epsfree
 
 stop
 end
