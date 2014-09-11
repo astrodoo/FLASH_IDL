@@ -3,7 +3,7 @@ pro recoll,n
 
 fname = 'JetSet_hdf5_plt_cnt_'+string(n,format='(I4.4)')
 print,'reading file: ',fname
-outname = 'recoll_M30'+string(n,format='(I4.4)')
+outname = 'recoll_M10_'+string(n,format='(I4.4)')
 
 xrange = [-2.5e12,-1.5e12]
 yrange = [-5.e11,5.e11]
@@ -29,11 +29,11 @@ sz = size(d,/dimension)
 loadct,0,/sil
 window,0,xs=sz[0]*2+sz[1],ys=sz[2]
 tvscl,alog(reform(d[*,sz[1]/2,*])),0
-xyouts,10,sz[2]-20,/dev,'M30'
+xyouts,10,sz[2]-20,/dev,strmid(outname,7,3)
 xyouts,10,sz[2]-50,/dev,'density in X-Z'
 
 loadct,39,/sil
-nl = 30
+nl = 10 ;30
 lcolor = findgen(nl)/float(nl)*256.
 zind = zjind+1
 for i=0,nl-1 do begin
@@ -85,11 +85,36 @@ oplot,jyr,zj,color=1,thick=3
 xyouts,sz[0]*2+10,sz[2]-50,/dev,'j*vz>crit in Y-Z',color=254
 tvlct,r,g,b
 
-mkeps,'recoll_M30_0365',xs=20.,ys=20.
+mkeps,outname,xs=20.,ys=20.
 contour, reform(jj[*,*,zind[0]]),x,y,/iso,xra=[-2.1e12,-1.9e12],yra=[-1.e11,1.e11],/xst,/yst,/nodata,levels=jcrit, xtitle='x [cm]', ytitle='y [cm]'
 oplot,!x.crange,[0.,0.],line=1
 oplot,[-2.e12,-2.e12],!y.crange,line=1
 for i=0,nl-1 do contour, reform(jj[*,*,zind[i]]),x,y,levels=jcrit,/overplot,color=lcolor[i]
+epsfree
+
+stop
+end
+
+pro comp_jet
+restore,file='recoll_M10_0319_jet.sav'
+zj10 = zj & jyl10 = jyl & jyr10 = jyr
+
+jyl10[where(jyl10 eq 0)] = !values.f_nan
+jyr10[where(jyr10 eq 0)] = !values.f_nan
+
+restore,file='recoll_M30_0365_jet.sav'
+zj30 = zj & jyl30 = jyl & jyr30 = jyr
+
+jyl30[where(jyl30 eq 0)] = !values.f_nan
+jyr30[where(jyr30 eq 0)] = !values.f_nan
+
+loadct,39,/sil
+mkeps,'recoll_compjet',xs=20.,ys=20.
+plot,jyl10,zj10,xr=[-5.e11,5.e11],yr=[0.,1.e12],/xst,/yst,/iso,xtitle='y [cm]',ytitle='z [cm]'
+oplot,jyr10,zj10
+oplot,jyl30,zj30,color=50
+oplot,jyr30,zj30,color=50
+legend,['M10','M30'],line=0,color=[0,50],textcolor=[0,50],/left,/top,box=0
 epsfree
 
 stop
