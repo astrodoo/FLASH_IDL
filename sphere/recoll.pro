@@ -1,4 +1,4 @@
-pro recoll,n
+pro recoll,n,mkdata=mkdata
 
 
 fname = 'JetSet_hdf5_plt_cnt_'+string(n,format='(I4.4)')
@@ -10,8 +10,7 @@ yrange = [-5.e11,5.e11]
 zrange = [-1.e11,1.5e12]
 sample=2
 
-mkdata=0
-if (mkdata) then begin
+if keyword_set(mkdata) then begin
    d = loaddata(fname,'dens',xra=xrange,yra=yrange $
        ,zra=zrange,time=time,sample=sample,xcoords=x,ycoords=y,zcoords=z)
    vz = loaddata(fname,'velz',xra=xrange,yra=yrange $
@@ -96,13 +95,13 @@ stop
 end
 
 pro comp_jet
-restore,file='recoll_M10_0319_jet.sav'
+restore,file='recoll_M10_0323_jet.sav'
 zj10 = zj & jyl10 = jyl & jyr10 = jyr
 
 jyl10[where(jyl10 eq 0)] = !values.f_nan
 jyr10[where(jyr10 eq 0)] = !values.f_nan
 
-restore,file='recoll_M30_0365_jet.sav'
+restore,file='recoll_M30_0371_jet.sav'
 zj30 = zj & jyl30 = jyl & jyr30 = jyr
 
 jyl30[where(jyl30 eq 0)] = !values.f_nan
@@ -112,9 +111,33 @@ loadct,39,/sil
 mkeps,'recoll_compjet',xs=20.,ys=20.
 plot,jyl10,zj10,xr=[-5.e11,5.e11],yr=[0.,1.e12],/xst,/yst,/iso,xtitle='y [cm]',ytitle='z [cm]'
 oplot,jyr10,zj10
+recz10 = 3.1e11
+oplot,!x.crange,[recz10,recz10],line=1
+und10_ind = where(zj10 le recz10)
+fit10 = linfit(jyr10[und10_ind],zj10[und10_ind])
+oplot,[0.,1.5e11],[0.,fit10[1]*1.5e11],line=2
+xyouts,1.5e11,3.5e11,/data, textoidl('\alpha = ') + string(90.-atan(fit10[1])/!dtor,format='(f5.2)') +' deg'
+
 oplot,jyl30,zj30,color=50
 oplot,jyr30,zj30,color=50
+recz30 = 6.8e11
+oplot,!x.crange,[recz30,recz30],line=1,color=50
+und30_ind = where(zj30 le recz30)
+fit30 = linfit(jyr30[und30_ind],zj30[und30_ind])
+oplot,[0.,2.e11],[0.,fit30[1]*2.e11],line=2,color=50
+xyouts,1.5e11,7.2e11,/data, textoidl('\alpha = ') + string(90.-atan(fit30[1])/!dtor,format='(f5.2)') +' deg', color=50
 legend,['M10','M30'],line=0,color=[0,50],textcolor=[0,50],/left,/top,box=0
+epsfree
+
+jthk10 = jyr10-jyl10
+jthk30 = jyr30-jyl30
+
+mkeps,'recoll_compjet_thick',xs=20.,ys=20.*6./8.
+cutz10 = 4.1e11
+plot,zj10[where(zj10 le cutz10)],jthk10[where(zj10 le cutz10)], xra=[0.,1.3e12],yra=[0.,1.8e11], /xst,/yst,xtitle='z [cm]', ytitle='jet thickness [cm]',xtickinterval=4.e11
+cutz30 = 1.e12
+oplot,zj30[where(zj30 le cutz30)],jthk30[where(zj30 le cutz30)],color=50
+legend,['M10','M30'],line=0,color=[0,50],textcolor=[0,50],/right,/top,box=0
 epsfree
 
 stop

@@ -186,7 +186,7 @@ if not keyword_set(noorbit) then overorbit
 if keyword_set(maskoff) then $
    plots,ring(cm2xSt,cm2ySt,1.4e12),color=fsc_color('cyan'),/data
 
-if keyword_set(block) then showblock,tree,params,zc=zc0
+if keyword_set(block) then showblock,tree=tree,param=params,zc=zc0
 
 if keyword_set(veloxy) then begin
    if keyword_set(zoom) then begin
@@ -282,7 +282,7 @@ if keyword_set(out) then begin
    stop
 endif   
 
-if keyword_set(block) then showblock,tree,params,yc=yc0
+if keyword_set(block) then showblock,tree=tree,param=params,yc=yc0
 
 if keyword_set(lineread) then begin
 n=100
@@ -343,23 +343,4 @@ if keyword_set(veloxz) then begin
 endif
 ;epsfree
 stop
-end
-
-pro showblock, tree, params, yc=yc, zc=zc, color=color
-if not keyword_set(color) then color=0
-for i=0L,params.totblocks-1 do begin
-    if (n_elements(yc) ne 0) then begin
-       if ((tree[i].bndbox[0,1] le yc) and (tree[i].bndbox[1,1] ge yc)) then begin
-          x1 = tree[i].bndbox[0,0] & x2 = tree[i].bndbox[1,0]
-          z1 = tree[i].bndbox[0,2] & z2 = tree[i].bndbox[1,2]
-          plots,[x1,x2,x2,x1,x1],[z1,z1,z2,z2,z1],/data,color=color,thick=1
-       endif
-    endif else if (n_elements(zc) ne 0) then begin
-       if ((tree[i].bndbox[0,2] le zc) and (tree[i].bndbox[1,2] ge zc)) then begin
-          x1 = tree[i].bndbox[0,0] & x2 = tree[i].bndbox[1,0]
-          y1 = tree[i].bndbox[0,1] & y2 = tree[i].bndbox[1,1]
-          plots,[x1,x2,x2,x1,x1],[y1,y1,y2,y2,y1],/data,color=color,thick=1
-       endif
-    endif
-endfor
 end
