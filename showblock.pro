@@ -1,12 +1,17 @@
-pro showblock, tree=tree, param= param, xc=xc, yc=yc, zc=zc, color=color, cell=cell, c16=c16 
-
+pro showblock, tree=tree, param= param, xc=xc, yc=yc, zc=zc, color=color, cell=cell, c16=c16 $
+             , bline=bline, bthick=bthick, bcolor=bcolor, cline=cline, cthick=cthick, ccolor=ccolor
 ; showing a block grid
 
 if not keyword_set(color) then color=0
 if keyword_set(c16) then nc=16 else nc=8
 
-bline = 0 & bthick = 1   & bcolor = 0     ; block line setting
-cline = 0 & cthick = 0.5 & ccolor = 0     ; cell line setting
+; line configuration for block and cell
+if not keyword_set(bline)  then bline=0
+if not keyword_set(bthick) then bthick=1
+if not keyword_set(bcolor) then bcolor=0
+if not keyword_set(cline)  then cline=0
+if not keyword_set(cthick) then cthick=1
+if not keyword_set(ccolor) then ccolor=180
 
 for i=0L,param.totblocks-1 do begin
 ;Y-Z plane at x=xc
