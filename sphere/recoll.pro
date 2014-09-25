@@ -2,7 +2,7 @@ pro recoll,n,mkdata=mkdata
 
 fname = 'JetSet_hdf5_plt_cnt_'+string(n,format='(I4.4)')
 print,'reading file: ',fname
-outname = 'recoll_M10_'+string(n,format='(I4.4)')
+outname = 'recoll_M30_'+string(n,format='(I4.4)')
 
 ;xrange = [-2.5e12,-1.5e12]
 ;yrange = [-8.e11,8.e11]
@@ -24,9 +24,9 @@ if keyword_set(mkdata) then begin
    save, file=outname+'.sav', d,vz,j,x,y,z,time
 endif else restore, file=outname+'.sav'      ;mkdata
 
-xjind = where(x ge -2.e12) & xjind = xjind[0]
-yjind = where(y ge 0.) & yjind = yjind[0]
-zjind = where(z ge 0) & zjind = zjind[0]
+xjind_tmp = where(x ge -2.e12) & xjind = xjind_tmp[0]
+yjind_tmp = where(y ge 0.) & yjind = yjind_tmp[0]
+zjind_tmp = where(z ge 0) & zjind = zjind_tmp[0]
 
 sz = size(d,/dimension)
 loadct,0,/sil
@@ -35,7 +35,7 @@ tvscl,alog(reform(d[*,sz[1]/2,*])),0
 xyouts,10,sz[2]-20,/dev,strmid(outname,7,3)
 xyouts,10,sz[2]-50,/dev,'density in X-Z'
 
-loadct,39,/sil
+loadct,13,/sil
 ;nl = 30
 ;lcolor = findgen(nl)/float(nl)*256.
 ;zind = zjind+1
@@ -95,6 +95,19 @@ tvlct,r,g,b
 ;for i=0,nl-1 do contour, reform(jj[*,*,zind[i]]),x,y,levels=jcrit,/overplot,color=lcolor[i]
 ;epsfree
 
+jyz = reform(jj[xjind,*,zjind:*])
+yy = y
+zz = z[zjind:*]
+maxv = max(jyz)
+minv = min(jyz)
+
+nlev = 255
+levs = findgen(nlev)/float(nlev)*(maxv-minv) + minv
+mkeps, outname+'_colorbar',xs=20.,ys=20.*6./8.
+contour,jyz,yy,zz,/iso,xra=[-5.e11,5.e11],yra=[0.,1.2e12],/xst,/yst,/fill,levels=levs,xtitle='x [cm]',ytitle='y [cm]'
+color_bar,/right,lim=[minv,maxv],bartitle='jj'
+
+epsfree
 stop
 end
 
