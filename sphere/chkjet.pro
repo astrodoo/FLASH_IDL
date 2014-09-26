@@ -24,11 +24,16 @@ vxy = reform(v[*,*,zind+2])
 save,file='chkjet.sav',dxy,vxy,pxy,x,y,z
 endif else restore, file='chkjet.sav'
 
-dj = max(dxy)
-pj = max(pxy)
-vj = max(vxy) 
-
+xind_tmp = where(x ge xc0) & xind = xind_tmp[0]
 yind_tmp = where(y ge yc0) & yind = yind_tmp[0]
+
+;dj = max(dxy)
+;pj = max(pxy)
+;vj = max(vxy) 
+dj = dxy[xind,yind]
+pj = pxy[xind,yind]
+vj = vxy[xind,yind]
+
 dx = reform(dxy[*,yind])
 px = reform(pxy[*,yind])
 vx = reform(vxy[*,yind])
