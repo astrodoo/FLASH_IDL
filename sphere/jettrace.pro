@@ -1,162 +1,406 @@
-pro jettrace, rotback=rotback
+pro jettrace2
 
 xc0 = -2.e12 
-yc0 = 0. 
-zc0 = 0. 
+yc0 = 0.
+zc0 = 1.5e13
 
-sample=3
-;n=891
-cd,'/d/d7/yoon/out_FLASH3.3_mhd/out_mHD_Binary_sphere/sphere_1e37_gam166' 
+sample=2
 n=654
-;velz = dload(700,var='velz',xc=xc0,yc=yc0,zc=zc0,x,y,z,sample=sample,time)
-;jet = dload(490,var='jet',xc=xc0,yc=yc0,zc=zc0,x,y,z,sample=sample,time)
-jet = dload(n,var='jet',xc=xc0,yc=yc0,zc=zc0,x,y,z,sample=sample,time)
-velz = dload(n,var='velz',xc=xc0,yc=yc0,zc=zc0,x,y,z,sample=sample,time)
-;jet = dload(1000,var='jet',xc=xc0,yc=yc0,zc=zc0,x,y,z,sample=sample,time)
-;jet = dload(570,var='jet',xc=xc0,yc=yc0,zc=zc0,x,y,z,sample=sample,time)
-;jet = dload(520,var='jet',xc=xc0,yc=yc0,zc=zc0,x,y,z,sample=sample,time)
-;jet = dload(700,var='jet',xc=xc0,yc=yc0,zc=zc0,x,y,z,sample=sample,time)
-;jet = dload(349,var='jet',xc=xc0,yc=yc0,zc=zc0,x,y,z,sample=sample,time)
 
-if keyword_set(rotback) then begin
-   print, 'start rotating'
-   m1 = 4.d34
-   m2 = 2.d34
-   mtot = m1+m2
-   peri = 3.d12
-   dth = sqrt(!unit.g * mtot / peri^3.d0) * time
+fname='jettrace2_1e37_'+strtrim(n,2)+'_smp'+strtrim(sample,2)
+;fname='jettrace2_1e35_'+strtrim(n,2)+'_smp'+strtrim(sample,2)
+;fname='jettrace2_1e36_60deg_'+strtrim(n,2)+'_smp'+strtrim(sample,2)
 
-   dth = dth / !dtor
-   jet_rot = rot_3d(jet,rotaxis=3,degree=dth,/interp) 
-   jet=jet_rot
-   print,'complete rotating'
-endif
+dataread=1
 
-y0ind_tmp = where(y ge 0) & y0ind = y0ind_tmp[0]
-velz2 = reform(velz[*,y0ind,*])
-jet2 = reform(jet[*,y0ind,*])
+loadct,0,/sil
+if (dataread) then begin
+   d  = dload(n,var='dens',xc=xc0,yc=yc0,zc=zc0,x,y,z,sample=sample,time)
+   d  = reform(d[*,256,*])
+   j  = dload(n,var='jet',xc=xc0,yc=yc0,zc=zc0,x,y,z,sample=sample,time)
+   j  = reform(j[*,256,*])
+   vz = dload(n,var='velz',xc=xc0,yc=yc0,zc=zc0,x,y,z,sample=sample,time)
+   vz = reform(vz[*,256,*])
+endif else restore,file=fname+'.sav' 
 
+window,0,xs=1024, ys=1024
+tvscl,alog(d),0
+tvscl,j,1
+tvscl,vz,2
+save,file=fname+'.sav',d,j,vz,x,z,time
+
+sz = n_elements(z)
 z0ind_tmp = where(z ge 0) & z0ind = z0ind_tmp[0]
-sz = size(jet2,/dimension)
-z2 = z[z0ind:*]
-x2 = fltarr(sz[1]-z0ind)
+z2 = z[z0ind:sz-1]
+x2 = fltarr(sz-z0ind)
 
-critv=0.1
-critj=0.7
-
-for i=z0ind,sz[1]-1 do begin
-;    maxv_xind = where(velz2[*,i] eq max(velz2[*,i]),count)
-;    maxj_xind = where(jet2[*,i] eq max(jet2[*,i]),count)
-    maxj_xind = where( (jet2[*,i] ge critj) and (velz2[*,i] ge 3.e9*critv) ,count)
-    if (count ge 2) then maxj_xind = reform(maxj_xind[n_elements(maxj_xind)-1]) ;closest point to star 
-    if ((count eq 0) or (maxj_xind eq 0)) then begin
-       x2[i-z0ind] = !values.f_nan
-    endif else begin
-       x2[i-z0ind] = x[maxj_xind] 
-    endelse
+jj = vz*j
+for i=z0ind,sz-1 do begin
+    maxv_xind = where(jj[*,i] eq max(jj[*,i]),count)
+;    maxv_xind = where(vz[*,i] eq max(vz[*,i]),count)
+    if (count ge 2) then maxv_xind = reform(maxv_xind[n_elements(maxv_xind)-1]) ;closest point to star 
+    x2[i-z0ind] = x[maxv_xind] 
+    if (j[maxv_xind,i] le 1.e-2) then x2[i-z0ind] = !values.f_nan
 endfor
 
-;x2[where(z2 le 0.5e12)]=!values.f_nan ; 1e37 case
-
-window,0
+window,3
 plot,x2,z2,/iso
 
-;save,filename='jettrace_1e35_700.sav',x2,z2
-;save,filename='jettrace_1e36_800.sav',x2,z2
-;save,filename='jettrace_1e36_700.sav',x2,z2
-;save,filename='jettrace_1e36_high_851.sav',x2,z2
-save,filename='jettrace_1e36_high_891.sav',x2,z2
-;save,filename='jettrace_1e36_high_1000.sav',x2,z2
-;save,filename='jettrace_1e37_490.sav',x2,z2
-;save,filename='jettrace_1e37_349.sav',x2,z2
-;save,filename='jettrace_1e36_rot_570.sav',x2,z2
-;save,filename='jettrace_1e37_rot_520.sav',x2,z2
+save_append,file=fname+'.sav',x2,z2
 
 stop
 end
 
 ;---------------------------------------------------------------------------------------
-pro jettrace2,ps=ps
+pro jettrace_draw, ps=ps
 
-fname1 = '/d/d3/yoon/outputs/out_mHD_Binary_sphere/sphere_1e35/jettrace_1e35_700.sav'
-fname2 = '/d/d7/yoon/out_FLASH3.3_mhd/out_mHD_Binary_sphere/sphere_1e36_high/jettrace_1e36_high_891.sav'
-fname3 = '/d/d7/yoon/out_FLASH3.3_mhd/out_mHD_Binary_sphere/sphere_1e37/jettrace_1e37_490.sav'
-fname4 = '/d/d7/yoon/out_FLASH3.3_mhd/out_mHD_Binary_sphere/sphere_1e36_rot/Stampede/jettrace_1e36_rot_570.sav'
-fname5 = '/d/d7/yoon/out_FLASH3.3_mhd/out_mHD_Binary_sphere/sphere_1e37_rot/Stampede/jettrace_1e37_rot_520.sav'
-fname6 = '/d/d7/yoon/out_FLASH3.3_mhd/out_mHD_Binary_sphere/sphere_1e36/jettrace_1e36_700.sav'
-fname7 = '/d/d7/yoon/out_FLASH3.3_mhd/out_mHD_Binary_sphere/sphere_1e37/jettrace_1e37_349.sav'
+fname='jettrace_comb.sav'
 
-restore,filename=fname1 & x2_35 = x2 & z2_35 = z2
-restore,filename=fname2 & x2_36 = x2 & z2_36 = z2
-restore,filename=fname3 & x2_37 = x2 & z2_37 = z2
-restore,filename=fname4 & x2_36_rot = x2 & z2_36_rot = z2
-restore,filename=fname5 & x2_37_rot = x2 & z2_37_rot = z2
+mkdata=0
+if (mkdata) then begin
+
+fn_e35_1 = '/d/d2/yoon/out_FLASH3.3_mhd/out_mHD_Binary_sphere/sphere_1e35/jettrace2_1e35_700_smp1.sav'
+fn_e35_2 = '/d/d2/yoon/out_FLASH3.3_mhd/out_mHD_Binary_sphere/sphere_1e35/jettrace2_1e35_700_smp2.sav'
+fn_e35_3 = '/d/d2/yoon/out_FLASH3.3_mhd/out_mHD_Binary_sphere/sphere_1e35/jettrace2_1e35_700_smp3.sav'
+fn_e36_1 = '/d/d7/yoon/out_FLASH3.3_mhd/out_mHD_Binary_sphere/_WRO_sphere_1e36_high/jettrace2_1e36_851_smp3.sav'
+fn_e36_2 = '/d/d7/yoon/out_FLASH3.3_mhd/out_mHD_Binary_sphere/_WRO_sphere_1e36_high/jettrace2_1e36_851_smp4.sav'
+
+fn_e37_1   = '/d/d7/yoon/out_FLASH3.3_mhd/out_mHD_Binary_sphere/_WRO_sphere_1e37_old/jettrace2_1e37_400_smp3.sav'
+fn_e37_2   = '/d/d7/yoon/out_FLASH3.3_mhd/out_mHD_Binary_sphere/_WRO_sphere_1e37_old/jettrace2_1e37_400_smp4.sav'
+
+fn_e37_g5_1   = '/d/d7/yoon/out_FLASH3.3_mhd/out_mHD_Binary_sphere/sphere_1e37_gam166/jettrace2_1e37_654_smp3.sav'
+;fn_e37_g5_2   = '/d/d7/yoon/out_FLASH3.3_mhd/out_mHD_Binary_sphere/sphere_1e37_gam166/jettrace2_1e37_654_smp4.sav'
+fn_e37_g5_2   = '/d/d7/yoon/out_FLASH3.3_mhd/out_mHD_Binary_sphere/sphere_1e37_gam166/jettrace2_1e37_654_smp2.sav'
+
+;fn_e36_rot = '/d/d7/yoon/out_FLASH3.3_mhd/brian/out_sphere_1e36_rot/jettrace_1e36_rot_cyl_589.sav'
+;fn_e36_acc = '/d/d7/yoon/out_FLASH3.3_mhd/aci/out_sphere_1e36_accel/jettrace_1e36_rot_cyl_260.sav'
+
+restore,filename=fn_e35_1 & x2_35_1 = x2 & z2_35_1 = z2
+restore,filename=fn_e35_2 & x2_35_2 = x2[1:*] & z2_35_2 = z2[1:*]
+restore,filename=fn_e35_3 & x2_35_3 = x2 & z2_35_3 = z2
+
+x2_35_dummy1 = x2_35_2[where(x2_35_2 lt min(x2_35_1))]
+x2_35_dummy2 = x2_35_3[where(x2_35_3 lt min(x2_35_2))]
+x2_35 = [x2_35_1,x2_35_dummy1,x2_35_dummy2]
+z2_35_dummy1 = z2_35_2[where(x2_35_2 lt min(x2_35_1))]
+z2_35_dummy2 = z2_35_3[where(x2_35_3 lt min(x2_35_2))]
+z2_35 = [z2_35_1,z2_35_dummy1,z2_35_dummy2]
+
+x2_35[where(z2_35 gt 3.e12)] = !values.f_nan
+z2_35[where(z2_35 gt 3.e12)] = !values.f_nan
+x2_35 = x2_35[where(finite(x2_35))]
+z2_35 = z2_35[where(finite(x2_35))]
+
+restore,filename=fn_e36_1 & x2_36_1 = x2 & z2_36_1 = z2
+restore,filename=fn_e36_2 & x2_36_2 = x2 & z2_36_2 = z2
+
+z2_36_dummy = z2_36_2[where(z2_36_2 gt max(z2_36_1))]
+z2_36 = [z2_36_1,z2_36_dummy]
+x2_36_dummy = x2_36_2[where(z2_36_2 gt max(z2_36_1))]
+x2_36 = [x2_36_1,x2_36_dummy]
+
+; eliminate bad pixels
+x2_36[where((z2_36 ge 3.73e12) and (z2_36 le 3.83e12))] = !values.f_nan
+z2_36[where((z2_36 ge 3.73e12) and (z2_36 le 3.83e12))] = !values.f_nan
+x2_36 = x2_36[where(finite(x2_36))]
+z2_36 = z2_36[where(finite(x2_36))]
+
+restore,filename=fn_e37_1 & x2_37_1 = x2 & z2_37_1 = z2
+restore,filename=fn_e37_2 & x2_37_2 = x2 & z2_37_2 = z2
+
+z2_37_dummy = z2_37_2[where(z2_37_2 gt max(z2_37_1))]
+z2_37 = [z2_37_1,z2_37_dummy]
+x2_37_dummy = x2_37_2[where(z2_37_2 gt max(z2_37_1))]
+x2_37 = [x2_37_1,x2_37_dummy]
+
+x2_37 = x2_37[where(finite(x2_37))]
+z2_37 = z2_37[where(finite(x2_37))]
+
+restore,filename=fn_e37_g5_1 & x2_37_g5_1 = x2 & z2_37_g5_1 = z2
+restore,filename=fn_e37_g5_2 & x2_37_g5_2 = x2 & z2_37_g5_2 = z2
+
+z2_37_g5_dummy = z2_37_g5_2[where(z2_37_g5_2 gt max(z2_37_g5_1))]
+z2_37_g5 = [z2_37_g5_1,z2_37_g5_dummy]
+x2_37_g5_dummy = x2_37_g5_2[where(z2_37_g5_2 gt max(z2_37_g5_1))]
+x2_37_g5 = [x2_37_g5_1,x2_37_g5_dummy]
+
+x2_37_g5 = x2_37_g5[where(finite(x2_37_g5))]
+z2_37_g5 = z2_37_g5[where(finite(x2_37_g5))]
+
+;restore,filename=fn_e36_rot & x2_36_rot = -jetposcyl[1,*] & z2_36_rot = jetposcyl[2,*]
+;restore,filename=fn_e36_acc & x2_36_acc = -jetposcyl[1,*] & z2_36_acc = jetposcyl[2,*]
+;zcrit_acc = 3.7e12
+;x2_36_acc = x2_36_acc[where(z2_36_acc le zcrit_acc)]
+;z2_36_acc = z2_36_acc[where(z2_36_acc le zcrit_acc)]
+;
+jetpos,th0=0,Lj=1e35,xjet=xjet_35,yjet=zjet_35
+jetpos,th0=0,Lj=1e36,xjet=xjet_36,yjet=zjet_36
+jetpos,th0=0,Lj=1e37,xjet=xjet_37,yjet=zjet_37
+jetpos,th0=0,Lj=1e37,xjet=xjet_37_g5,yjet=zjet_37_g5,/gam
+
+save,file=fname,x2_35,z2_35,x2_36,z2_36,x2_37,z2_37,xjet_35,zjet_35,xjet_36,zjet_36,xjet_37,zjet_37 $
+               ,x2_37_g5, z2_37_g5, xjet_37_g5, zjet_37_g5
+;               ,x2_36_rot,z2_36_rot,x2_36_acc,z2_36_acc, x2_37_g5, z2_37_g5, xjet_37_g5, zjet_37_g5
+
+endif else restore, file=fname
+
+;--------------------------------------------------------------------------------
+; drawing
+;
+
+;restore, file='/d/d7/yoon/out_FLASH3.3_mhd/out_mHD_Binary_sphere/sphere_1e37_gam166/c2var_xyjet.sav'
+;xjet_37_g5=xjet_tp & zjet_37_g5=yjet_tp
 
 loadct,39,/sil
-if not keyword_set(ps) then begin
-!p.background=255 & !p.color=0
-window,1,xs=800,ys=700
-endif else mkeps,'pp_jettrace',xs=20.,ys=17.
-plot,x2_35,z2_35,xr=[-1.e13,2.e12],/xst,yr=[0.,1.e13],yst=2,psym=1,/iso,xtitle='x [cm]',ytitle='z [cm]',charsize=1.5
-oplot,x2_36,z2_36,psym=1,color=50
-oplot,x2_37,z2_37,psym=1,color=250
-oplot,x2_36_rot,z2_36_rot,psym=dsym(8,/fill),color=50,symsize=1.
-oplot,x2_37_rot,z2_37_rot,psym=dsym(8,/fill),color=250,symsize=1.
+if not keyword_Set(ps) then begin 
+  !p.background=255 & !p.color=0
+  window,1,xs=600,ys=600 
+endif else mkeps,'jettrace2_comb',xs=20.,ys=20.
 
+plot,x2_35,z2_35,xra=[-1.e13,5.e12],yra=[0.,2.e13],/nodata,/iso,xticks=3,xtitle='x [cm]', ytitle='z [cm]' $
+    ,xmargin=[13.,0.1],/xst,/yst
+oplot,x2_35,z2_35,psym=dsym(6),symsize=0.5
+oplot,xjet_35,zjet_35
+oplot,x2_36,z2_36,psym=dsym(5),color=50,symsize=0.5
+oplot,xjet_36,zjet_36,color=50
+oplot,x2_37,z2_37,psym=dsym(8),color=254,symsize=0.5
+oplot,xjet_37,zjet_37,color=254
+
+oplot,x2_37_g5,z2_37_g5,psym=dsym(8),color=200,symsize=0.5
+oplot,xjet_37_g5,zjet_37_g5,color=200
+
+;oplot,x2_36_rot,z2_36_rot,psym=dsym(4),color=100,symsize=0.5
+;oplot,x2_36_acc,z2_36_acc,psym=dsym(7),color=150,symsize=0.7, thick=0.5
+
+plots,1.e12,0.,psym=dsym(16), symsize=3
 
 xc0=1.e12 & yc0=0.
 xc1=!x.crange[0]
-plotsym,3
-plots,xc0,yc0,/data,psym=8,symsize=3
+oplot,[xc0,xc1],[yc0, -tan(18*!dtor)*(xc1-xc0)+yc0],line=2
+oplot,[xc0,xc1],[yc0, -tan(62.*!dtor)*(xc1-xc0)+yc0],color=50,line=2
+oplot,[xc0,xc1],[yc0, -tan(82*!dtor)*(xc1-xc0)+yc0],color=250,line=2
 
-; fitted results
-ind35 = where(x2_35 le -2.5e12)
-lin35 = linfit(x2_35[ind35],z2_35[ind35])
-x0=x2_35[ind35] & x0=reform(x0[0])
-y0 = lin35[1]*x0+lin35[0]
-oplot,[x0,!x.crange[0]],[lin35[1]*x0+lin35[0],lin35[0]+lin35[1]*!x.crange[0]]
-oplot,[x0,xc1],[y0, -tan(16.69*!dtor)*(xc1-x0)+y0],line=2
+;legend,textoidl('L_{j}=')+[textoidl('10^{35}'),textoidl('10^{36}'),textoidl('10^{37}')]+textoidl(' erg s^{-1}'),color=[0,50,254],textcolor=[0,50,254] $
+;      ,box=0,/right,/top
+legend,'SphWind_'+['E35','E36','E37','E37_gam166','E36_rot','E36_acc'],color=[0,50,254,200,100,150],textcolor=[0,50,254,200,100,150] $
+      ,box=0,/right,/top,psym=['dsym(6)','dsym(5)','dsym(8)','dsym(8)','dsym(4)','dsym(7)'],charsize=1.2
 
-ind36 = where((z2_36 ge 2.e12) and (z2_36 le 8.e12))
-xx2 = x2_36[ind36] & xx2h = xx2[where(finite(xx2) eq 1)]
-zz2 = z2_36[ind36] & zz2h = zz2[where(finite(xx2) eq 1)]
-lin36 = linfit(xx2h,zz2h)
-x0=reform(xx2h[0])
-y0=lin36[0]+lin36[1]*x0
-oplot,[x0,!x.crange[0]],[lin36[0]+lin36[1]*x0,lin36[0]+lin36[1]*!x.crange[0]],color=50
-oplot,[x0,xc1],[y0,-tan(66.*!dtor)*(xc1-x0)+y0],color=50,line=2
+if keyword_Set(ps) then epsfree
+stop
+end
 
-ind36r = where((z2_36_rot ge 2.e12) and (z2_36_rot le 8.e12))
-xx2 = x2_36_rot[ind36r] & xx2h = xx2[where(finite(xx2) eq 1)]
-zz2 = z2_36_rot[ind36r] & zz2h = zz2[where(finite(xx2) eq 1)]
-lin36r = linfit(xx2h,zz2h)
-x0=reform(xx2h[0])
-y0=lin36r[0]+lin36r[1]*x0
-oplot,[x0,!x.crange[0]],[lin36r[0]+lin36r[1]*x0,lin36r[0]+lin36r[1]*!x.crange[0]],color=50
+;==========================================================================
+; getting analytical lines
+forward_function Fth, PQ_Limits
+function Fth,th1,th2
+common Power, intpow
+   return, (1.+tan(th1)^2.)*cos(th2)^intpow
+end
 
-ind37 = where(z2_37 ge 1.e12)
-lin37 = linfit(x2_37[ind37],z2_37[ind37])
-x0=x2_37[ind37] & x0=reform(x0[0])
-y0=lin37[0]+lin37[1]*x0
-oplot,[x0,!x.crange[0]],[lin37[0]+lin37[1]*x0,lin37[0]+lin37[1]*!x.crange[0]],color=250
-oplot,[x0,xc1],[y0, -tan(78.68*!dtor)*(xc1-x0)+y0],color=250,line=2
+function PQ_Limits,th1
+common Param, th_start
+;print, 'th_start=', th_start
+   return, [th_start,th1]
+end
 
-ind37r = where((z2_37_rot ge 3.e12) and (z2_37_rot le 8.e12))
-xx2 = x2_37_rot[ind37r] & xx2h = xx2[where(finite(xx2) eq 1)]
-zz2 = z2_37_rot[ind37r] & zz2h = zz2[where(finite(xx2) eq 1)]
-lin37r = linfit(xx2h,zz2h)
-x0=reform(xx2h[0])
-y0=lin37r[0]+lin37r[1]*x0
-;oplot,[x0,!x.crange[0]],[lin37r[0]+lin37r[1]*x0,lin37r[0]+lin37r[1]*!x.crange[0]],color=250
-oplot,[x0,(!y.crange[1]-lin37r[0])/lin37r[1]],[lin37r[0]+lin37r[1]*x0,!y.crange[1]],color=250
+pro jetpos,th0=th0,xjet=xjet,yjet=yjet,nth=nth,theta=theta, Lj=Lj, gam=gam
+common Param, th_start
+common Power, intpow
 
+if keyword_set(gam) then intpow = 0.8 else intpow = 0.5
+print,'Lj=  ',Lj,'      th0 = ', th0 
+if keyword_set(gam) then print,'gamma = 5/3'
 
-;oplot,[xc0,xc1],[yc0, -tan(16.69*!dtor)*(xc1-xc0)+yc0],line=2
-;oplot,[xc0,xc1],[yc0, -tan(66.*!dtor)*(xc1-xc0)+yc0],color=50,line=2
-;oplot,[xc0,xc1],[yc0, -tan(78.68*!dtor)*(xc1-xc0)+yc0],color=250,line=2
+if not keyword_set(nth) then nth=10000
 
-legend,textoidl('P_{jet}=')+['1e37','1e36','1e35','1e37_rot','1e36_rot'],psym=[1,1,1,dsym(8,/fill),dsym(8,/fill)],color=[250,50,0,250,50],textcolor=[250,50,0,250,50],/right,/top,charsize=1.5
+case Lj of
+   1e35: h0=3.e10
+   1e36: h0=5.5e10
+   1e37: if keyword_set(gam) then h0=1.e11 else h0=1.2e11
+   else: print, 'out of range in Energy'
+endcase
 
-if keyword_set(ps) then epsfree
+;h0=5e10 ; L35
+;h0=6.e10 ; L36
+;h0=1.2e11 ; L37
+
+;Lj = 1.d35
+;Lj = 1.d36
+;Lj = 1.d37
+
+l = 3.d12
+Mdot = 4.415d20
+vw = 2.5d8
+vj = 3.d9
+Mj = 30.
+
+th0 = -th0*!dtor
+th_start=th0
+Const = 0.25/!pi * Mdot*vw * h0 * vj * (1.+9./2./Mj^2) / Lj * cos(th0)^(-0.25)
+
+th = findgen(nth)/float(nth)*(!pi/2.-th0) + th0
+theta=th
+
+int2val = fltarr(nth)
+for i=0, nth-1 do begin
+  AB_Limits = [th0, th[i]]
+  int2val[i] = int_2d('Fth', AB_Limits, 'PQ_Limits', 96, /double)
+endfor
+
+;print,'int2val:', int2val[nth-1]
+
+dx = Const * int2val
+
+stx0 = 1.e12 & sty0 = 0.
+jetx0= stx0-l*cos(abs(th0))  & jety0=l*sin(th0)
+
+jetx = jetx0 - dx
+jety = l*cos(th0)*tan(th)
+
+jetx_rot =  cos(abs(th0))*(jetx-stx0) + sin(abs(th0))*(jety-sty0) + stx0
+jety_rot = -sin(abs(th0))*(jetx-stx0) + cos(abs(th0))*(jety-sty0) + sty0
+xjet=jetx_rot & yjet=jety_rot
+
+case Lj of
+   1e35: restore,file='/d/d2/yoon/out_FLASH3.3_mhd/out_mHD_Binary_sphere/sphere_1e35/jettrace2_1e35_700_smp3.sav' 
+   1e36: restore,file='/d/d7/yoon/out_FLASH3.3_mhd/out_mHD_Binary_sphere/_WRO_sphere_1e36_high/jettrace2_1e36_851_smp3.sav' 
+   1e37: restore,file='/d/d7/yoon/out_FLASH3.3_mhd/out_mHD_Binary_sphere/_WRO_sphere_1e37_old/jettrace2_1e37_400_smp4.sav' 
+   else: print, 'out of range in Energy'
+endcase
+
+window,4
+plot,xjet,yjet,xra=[-6.e12,-1.e12],/xst,/iso,yra=[0.,8e12],/yst
+oplot,x2,z2
+end
+
+pro errorchk, ps=ps
+
+restore, file='jettrace_comb.sav'
+
+; for off-axis jets data
+restore, file='/d/d7/yoon/out_FLASH3.3_mhd/out_mHD_Binary_sphere/sphere_1e36_30deg/jettrace2_1e36_30deg_530_smp3.sav'
+restore, file='/d/d7/yoon/out_FLASH3.3_mhd/out_mHD_Binary_sphere/sphere_1e36_60deg/jettrace2_1e36_60deg_460_smp3.sav'
+
+stx = 1.d12
+
+;d35 = sqrt( (xjet_35-stx)^2. + zjet_35*zjet_35 )
+;th_35 = acos(abs(xjet_35-stx)/d35)
+;d36 = sqrt( (xjet_36-stx)^2. + zjet_36*zjet_36 )
+;th_36 = acos(abs(xjet_36-stx)/d36)
+;d37 = sqrt( (xjet_37-stx)^2. + zjet_37*zjet_37 )
+;th_37 = acos(abs(xjet_37-stx)/d37)
+
+nflag = 9990
+
+slop35 = deriv(xjet_35,zjet_35)
+ang_35 = 90.-atan(-slop35)/!dtor 
+ang_35 = ang_35[0:nflag] & xjet_35 = xjet_35[0:nflag] & zjet_35 = zjet_35[0:nflag]
+slop36 = deriv(xjet_36,zjet_36)
+ang_36 = 90.-atan(-slop36)/!dtor 
+ang_36 = ang_36[0:nflag] & xjet_36 = xjet_36[0:nflag] & zjet_36 = zjet_36[0:nflag]
+slop37 = deriv(xjet_37,zjet_37)
+ang_37 = 90.-atan(-slop37)/!dtor 
+ang_37 = ang_37[0:nflag] & xjet_37 = xjet_37[0:nflag] & zjet_37 = zjet_37[0:nflag]
+
+slop30deg = deriv(xjet_30deg,zjet_30deg)
+ang_30deg = -60.-atan(-slop30deg)/!dtor  
+ang_30deg = ang_30deg[0:nflag] & xjet_30deg = xjet_30deg[0:nflag] & zjet_30deg = zjet_30deg[0:nflag]
+ang_30deg[where(ang_30deg lt 0)] += 180.
+ang_30deg[0]=0.
+
+xjet_36_rot = xjet_36 & zjet_36_rot=zjet_36
+xjet_36_acc = xjet_36 & zjet_36_acc=zjet_36
+
+xjet_60deg = xjet_36_60deg & zjet_60deg = zjet_36_60deg
+x2_60deg = x2_36_60deg & z2_60deg = z2_36_60deg
+x2_60deg = x2_60deg(where(finite(x2_60deg))) & z2_60deg = z2_60deg(where(finite(x2_60deg)))
+
+slop60deg = deriv(xjet_60deg,zjet_60deg)
+ang_60deg = -30.-atan(-slop60deg)/!dtor 
+ang_60deg = ang_60deg[0:nflag] & xjet_60deg = xjet_60deg[0:nflag] & zjet_60deg = zjet_60deg[0:nflag]
+ang_60deg[where(ang_60deg lt 0)] += 180.
+ang_60deg[0]=0.
+
+intpx35 = interpol(x2_35,z2_35,zjet_35)
+xjet_35[where(intpx35 le -1.1e13)] = !values.f_nan
+zjet_35[where(intpx35 le -1.1e13)] = !values.f_nan
+ang_35[where(intpx35 le -1.1e13)] = !values.f_nan
+intpx35[where(intpx35 le -1.1e13)] = !values.f_nan
+xjet_35 = xjet_35[where(finite(xjet_35))]
+zjet_35 = zjet_35[where(finite(zjet_35))]
+intpx35 = intpx35[where(finite(intpx35))]
+ang_35 = ang_35[where(finite(ang_35))]
+dev35 = abs(xjet_35 - intpx35)
+
+intpx36 = interpol(x2_36,z2_36,zjet_36)
+xjet_36[where(intpx36 le -1.5e13)] = !values.f_nan
+zjet_36[where(intpx36 le -1.5e13)] = !values.f_nan
+intpx36[where(intpx36 le -1.5e13)] = !values.f_nan
+xjet_36 = xjet_36[where(finite(xjet_36))]
+zjet_36 = zjet_36[where(finite(zjet_36))]
+intpx36 = intpx36[where(finite(intpx36))]
+dev36 = abs(xjet_36 - intpx36)
+
+intpx36_rot = interpol(x2_36_rot,z2_36_rot,zjet_36_rot)
+;xjet_36_rot[where(intpx36_rot le -1.5e13)] = !values.f_nan
+;zjet_36_rot[where(intpx36_rot le -1.5e13)] = !values.f_nan
+;intpx36_rot[where(intpx36_rot le -1.5e13)] = !values.f_nan
+xjet_36_rot = xjet_36_rot[where(finite(xjet_36_rot))]
+zjet_36_rot = zjet_36_rot[where(finite(zjet_36_rot))]
+intpx36_rot = intpx36_rot[where(finite(intpx36_rot))]
+dev36_rot = abs(xjet_36_rot - intpx36_rot)
+
+intpx36_acc = interpol(x2_36_acc,z2_36_acc,zjet_36_acc)
+;xjet_36_acc[where(intpx36_acc le -1.5e13)] = !values.f_nan
+;zjet_36_acc[where(intpx36_acc le -1.5e13)] = !values.f_nan
+;intpx36_acc[where(intpx36_acc le -1.5e13)] = !values.f_nan
+xjet_36_acc = xjet_36_acc[where(finite(xjet_36_acc))]
+zjet_36_acc = zjet_36_acc[where(finite(zjet_36_acc))]
+intpx36_acc = intpx36_acc[where(finite(intpx36_acc))]
+dev36_acc = abs(xjet_36_acc - intpx36_acc)
+
+intpx37 = interpol(x2_37,z2_37,zjet_37)
+xjet_37[where(zjet_37 ge 1.8e13)] = !values.f_nan
+intpx37[where(zjet_37 ge 1.8e13)] = !values.f_nan
+zjet_37[where(zjet_37 ge 1.8e13)] = !values.f_nan
+xjet_37 = xjet_37[where(finite(xjet_37))]
+zjet_37 = zjet_37[where(finite(zjet_37))]
+intpx37 = intpx37[where(finite(intpx37))]
+dev37 = abs(xjet_37 - intpx37)
+
+intpx30deg = interpol(x2_30deg,z2_30deg,zjet_30deg)
+dev30deg   = abs(xjet_30deg - intpx30deg)
+
+intpx60deg = interpol(x2_60deg,z2_60deg,zjet_60deg)
+dev60deg   = abs(xjet_60deg - intpx60deg)
+
+sep=3.e12
+loadct,39,/sil
+if not keyword_set(ps) then begin
+   !p.background=255 & !p.color=0
+   window,1
+endif else mkeps,'jettrace2_errorchk',xs=20.,ys=20.*6./8.
+
+plot,ang_35, dev35/abs(xjet_35),xtitle='jet bending angle [degree]',ytitle='fractional deviation',xrange=[0.,70.],yrange=[-0.05,1.0],/xst,/yst,/nodata
+oplot,ang_35, dev35/abs(xjet_35), line=2
+oplot,ang_36, dev36/abs(xjet_36),color=50, line=3
+oplot,ang_37, dev37/abs(xjet_37),color=250, line=4
+
+oplot,ang_36, dev36_rot/abs(xjet_36_rot),color=100,line=5
+oplot,ang_36, dev36_acc/abs(xjet_36_acc),color=150,line=1
+
+;dev30deg[where((ang_30deg ge 40) and (dev30deg le 6.e12))] = 6.e12
+;oplot,ang_30deg, dev30deg/abs(xjet_30deg),color=30
+;dev60deg[where((ang_60deg ge 60) and (dev60deg le 3.5e12))] = 3.5e12
+;oplot,ang_60deg, dev60deg/abs(xjet_60deg),color=210
+
+oplot,[20.,20.],!y.crange,line=0
+legend,'SphWind_'+['E35','E36','E37','E36_rot','E36_acc'],color=[0,50,254,100,150],textcolor=[0,50,254,100,150] $
+      ,box=0,/right,/bottom, charsize=1., line=[2,3,4,5,1]
+;legend,'SphWind_'+['E35','E36','E37','E36_rot','E36_acc','E36_30deg','E36_60deg'],color=[0,50,254,100,150,30,210],textcolor=[0,50,254,100,150,30,210] $
+;      ,box=0,/left,/top, charsize=1.
+
+if keyword_Set(ps) then epsfree
+
 stop
 end

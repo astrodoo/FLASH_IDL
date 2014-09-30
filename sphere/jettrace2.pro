@@ -56,24 +56,24 @@ pro jettrace_draw, ps=ps
 
 fname='jettrace_comb.sav'
 
-mkdata=0
+mkdata=1
 if (mkdata) then begin
 
 fn_e35_1 = '/d/d2/yoon/out_FLASH3.3_mhd/out_mHD_Binary_sphere/sphere_1e35/jettrace2_1e35_700_smp1.sav'
 fn_e35_2 = '/d/d2/yoon/out_FLASH3.3_mhd/out_mHD_Binary_sphere/sphere_1e35/jettrace2_1e35_700_smp2.sav'
 fn_e35_3 = '/d/d2/yoon/out_FLASH3.3_mhd/out_mHD_Binary_sphere/sphere_1e35/jettrace2_1e35_700_smp3.sav'
-fn_e36_1 = '/d/d7/yoon/out_FLASH3.3_mhd/out_mHD_Binary_sphere/sphere_1e36_high/jettrace2_1e36_851_smp3.sav'
-fn_e36_2 = '/d/d7/yoon/out_FLASH3.3_mhd/out_mHD_Binary_sphere/sphere_1e36_high/jettrace2_1e36_851_smp4.sav'
+fn_e36_1 = '/d/d7/yoon/out_FLASH3.3_mhd/out_mHD_Binary_sphere/_WRO_sphere_1e36_high/jettrace2_1e36_851_smp3.sav'
+fn_e36_2 = '/d/d7/yoon/out_FLASH3.3_mhd/out_mHD_Binary_sphere/_WRO_sphere_1e36_high/jettrace2_1e36_851_smp4.sav'
 
-fn_e37_1   = '/d/d7/yoon/out_FLASH3.3_mhd/out_mHD_Binary_sphere/sphere_1e37/jettrace2_1e37_400_smp3.sav'
-fn_e37_2   = '/d/d7/yoon/out_FLASH3.3_mhd/out_mHD_Binary_sphere/sphere_1e37/jettrace2_1e37_400_smp4.sav'
+fn_e37_1   = '/d/d7/yoon/out_FLASH3.3_mhd/out_mHD_Binary_sphere/_WRO_sphere_1e37_old/jettrace2_1e37_400_smp3.sav'
+fn_e37_2   = '/d/d7/yoon/out_FLASH3.3_mhd/out_mHD_Binary_sphere/_WRO_sphere_1e37_old/jettrace2_1e37_400_smp4.sav'
 
 fn_e37_g5_1   = '/d/d7/yoon/out_FLASH3.3_mhd/out_mHD_Binary_sphere/sphere_1e37_gam166/jettrace2_1e37_654_smp3.sav'
 ;fn_e37_g5_2   = '/d/d7/yoon/out_FLASH3.3_mhd/out_mHD_Binary_sphere/sphere_1e37_gam166/jettrace2_1e37_654_smp4.sav'
 fn_e37_g5_2   = '/d/d7/yoon/out_FLASH3.3_mhd/out_mHD_Binary_sphere/sphere_1e37_gam166/jettrace2_1e37_654_smp2.sav'
 
-fn_e36_rot = '/d/d7/yoon/out_FLASH3.3_mhd/brian/out_sphere_1e36_rot/jettrace_1e36_rot_cyl_589.sav'
-fn_e36_acc = '/d/d7/yoon/out_FLASH3.3_mhd/aci/out_sphere_1e36_accel/jettrace_1e36_rot_cyl_260.sav'
+;fn_e36_rot = '/d/d7/yoon/out_FLASH3.3_mhd/brian/out_sphere_1e36_rot/jettrace_1e36_rot_cyl_589.sav'
+;fn_e36_acc = '/d/d7/yoon/out_FLASH3.3_mhd/aci/out_sphere_1e36_accel/jettrace_1e36_rot_cyl_260.sav'
 
 restore,filename=fn_e35_1 & x2_35_1 = x2 & z2_35_1 = z2
 restore,filename=fn_e35_2 & x2_35_2 = x2[1:*] & z2_35_2 = z2[1:*]
@@ -127,19 +127,20 @@ x2_37_g5 = [x2_37_g5_1,x2_37_g5_dummy]
 x2_37_g5 = x2_37_g5[where(finite(x2_37_g5))]
 z2_37_g5 = z2_37_g5[where(finite(x2_37_g5))]
 
-restore,filename=fn_e36_rot & x2_36_rot = -jetposcyl[1,*] & z2_36_rot = jetposcyl[2,*]
-restore,filename=fn_e36_acc & x2_36_acc = -jetposcyl[1,*] & z2_36_acc = jetposcyl[2,*]
-zcrit_acc = 3.7e12
-x2_36_acc = x2_36_acc[where(z2_36_acc le zcrit_acc)]
-z2_36_acc = z2_36_acc[where(z2_36_acc le zcrit_acc)]
-
+;restore,filename=fn_e36_rot & x2_36_rot = -jetposcyl[1,*] & z2_36_rot = jetposcyl[2,*]
+;restore,filename=fn_e36_acc & x2_36_acc = -jetposcyl[1,*] & z2_36_acc = jetposcyl[2,*]
+;zcrit_acc = 3.7e12
+;x2_36_acc = x2_36_acc[where(z2_36_acc le zcrit_acc)]
+;z2_36_acc = z2_36_acc[where(z2_36_acc le zcrit_acc)]
+;
 jetpos,th0=0,Lj=1e35,xjet=xjet_35,yjet=zjet_35
 jetpos,th0=0,Lj=1e36,xjet=xjet_36,yjet=zjet_36
 jetpos,th0=0,Lj=1e37,xjet=xjet_37,yjet=zjet_37
 jetpos,th0=0,Lj=1e37,xjet=xjet_37_g5,yjet=zjet_37_g5,/gam
 
 save,file=fname,x2_35,z2_35,x2_36,z2_36,x2_37,z2_37,xjet_35,zjet_35,xjet_36,zjet_36,xjet_37,zjet_37 $
-               ,x2_36_rot,z2_36_rot,x2_36_acc,z2_36_acc, x2_37_g5, z2_37_g5, xjet_37_g5, zjet_37_g5
+               ,x2_37_g5, z2_37_g5, xjet_37_g5, zjet_37_g5
+;               ,x2_36_rot,z2_36_rot,x2_36_acc,z2_36_acc, x2_37_g5, z2_37_g5, xjet_37_g5, zjet_37_g5
 
 endif else restore, file=fname
 
@@ -262,8 +263,8 @@ xjet=jetx_rot & yjet=jety_rot
 
 case Lj of
    1e35: restore,file='/d/d2/yoon/out_FLASH3.3_mhd/out_mHD_Binary_sphere/sphere_1e35/jettrace2_1e35_700_smp3.sav' 
-   1e36: restore,file='/d/d7/yoon/out_FLASH3.3_mhd/out_mHD_Binary_sphere/sphere_1e36_high/jettrace2_1e36_851_smp3.sav' 
-   1e37: restore,file='/d/d7/yoon/out_FLASH3.3_mhd/out_mHD_Binary_sphere/sphere_1e37/jettrace2_1e37_400_smp4.sav' 
+   1e36: restore,file='/d/d7/yoon/out_FLASH3.3_mhd/out_mHD_Binary_sphere/_WRO_sphere_1e36_high/jettrace2_1e36_851_smp3.sav' 
+   1e37: restore,file='/d/d7/yoon/out_FLASH3.3_mhd/out_mHD_Binary_sphere/_WRO_sphere_1e37_old/jettrace2_1e37_400_smp4.sav' 
    else: print, 'out of range in Energy'
 endcase
 
