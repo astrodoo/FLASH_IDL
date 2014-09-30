@@ -10,7 +10,7 @@ outname = 'recoll_M30_'+string(n,format='(I4.4)')
 
 xrange = [-2.5e12,-1.5e12]
 yrange = [-5.e11,5.e11]
-zrange = [-1.e11,1.5e12]
+zrange = [-1.e11,2.e12]
 ;sample=3 ; for M10
 sample=2 ; for M30
 
@@ -73,7 +73,7 @@ for i=zjind,sz[2]-1 do begin
    endelse
 endfor
 
-save,file=outname+'_jet.sav', zj,jxl,jxr,jyl,jyr
+save,file=outname+'_jet.sav', zj,jxl,jxr,jyl,jyr, time
 
 tvlct,r,g,b,/get
 tvlct,255,255,255,0
@@ -108,7 +108,7 @@ contour,jyz,yy,zz,/iso,xra=[-5.e11,5.e11],yra=[0.,1.2e12],/xst,/yst,/fill,levels
 color_bar,/right,lim=[minv,maxv],bartitle='jj'
 
 epsfree
-stop
+;stop
 end
 
 pro comp_jet
