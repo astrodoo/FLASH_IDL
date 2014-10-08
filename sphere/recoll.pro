@@ -95,8 +95,6 @@ tvlct,r,g,b
 ;for i=0,nl-1 do contour, reform(jj[*,*,zind[i]]),x,y,levels=jcrit,/overplot,color=lcolor[i]
 ;epsfree
 
-;stop
-;=======
 jyz = reform(jj[xjind,*,zjind:*])
 yy = y
 zz = z[zjind:*]
