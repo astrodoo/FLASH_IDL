@@ -1,33 +1,30 @@
-pro jettrace2
+pro jettrace,n,mkdata=mkdata,sample=sample,xc0=xc0,yc0=yc0,zc0=zc0
 
-xc0 = -2.e12 
-yc0 = 0.
-zc0 = 1.5e13
+if not keyword_set(xc0) then xc0 = -2.e12 
+if not keyword_set(yc0) then yc0 = 0.
+if not keyword_set(zc0) then zc0 = 5.e11
+if (n_elements(sample) eq 0) then sample=2
 
-sample=2
-n=654
-
-fname='jettrace2_1e37_'+strtrim(n,2)+'_smp'+strtrim(sample,2)
+fname='jettrace_1e36_'+strtrim(n,2)
 ;fname='jettrace2_1e35_'+strtrim(n,2)+'_smp'+strtrim(sample,2)
 ;fname='jettrace2_1e36_60deg_'+strtrim(n,2)+'_smp'+strtrim(sample,2)
 
-dataread=1
-
-loadct,0,/sil
-if (dataread) then begin
+if keyword_set(mkdata) then begin
    d  = dload(n,var='dens',xc=xc0,yc=yc0,zc=zc0,x,y,z,sample=sample,time)
    d  = reform(d[*,256,*])
    j  = dload(n,var='jet',xc=xc0,yc=yc0,zc=zc0,x,y,z,sample=sample,time)
    j  = reform(j[*,256,*])
    vz = dload(n,var='velz',xc=xc0,yc=yc0,zc=zc0,x,y,z,sample=sample,time)
    vz = reform(vz[*,256,*])
+
+   save,file=fname+'.sav',d,j,vz,x,z,time
 endif else restore,file=fname+'.sav' 
 
+loadct,0,/sil
 window,0,xs=1024, ys=1024
 tvscl,alog(d),0
 tvscl,j,1
 tvscl,vz,2
-save,file=fname+'.sav',d,j,vz,x,z,time
 
 sz = n_elements(z)
 z0ind_tmp = where(z ge 0) & z0ind = z0ind_tmp[0]
@@ -189,6 +186,16 @@ if keyword_Set(ps) then epsfree
 stop
 end
 
+
+
+
+
+
+
+
+
+
+
 ;==========================================================================
 ; getting analytical lines
 forward_function Fth, PQ_Limits
@@ -203,22 +210,32 @@ common Param, th_start
    return, [th_start,th1]
 end
 
-pro jetpos,th0=th0,xjet=xjet,yjet=yjet,nth=nth,theta=theta, Lj=Lj, gam=gam
+pro jetpos,th0=th0,xjet=xjet,yjet=yjet,nth=nth,theta=theta, Lj=Lj, gam53=gam53
 common Param, th_start
 common Power, intpow
 
-if keyword_set(gam) then intpow = 0.8 else intpow = 0.5
+if keyword_set(gam53) then begin
+   print,'gamma = 5/3'  
+   intpow = 0.8 
+endif else begin
+   print,'gamma = 4/3'
+   intpow = 0.5
+endelse
+
+if (n_elements(th0) eq 0) then th0 = 0.
+
 print,'Lj=  ',Lj,'      th0 = ', th0 
-if keyword_set(gam) then print,'gamma = 5/3'
 
 if not keyword_set(nth) then nth=10000
 
 case Lj of
    1e35: h0=3.e10
-   1e36: h0=5.5e10
-   1e37: if keyword_set(gam) then h0=1.e11 else h0=1.2e11
+   1e36: h0=8.e10
+   1e37: if keyword_set(gam53) then h0=1.e11 else h0=1.2e11
    else: print, 'out of range in Energy'
 endcase
+
+print,'h0 = ',h0
 
 ;h0=5e10 ; L35
 ;h0=6.e10 ; L36
@@ -261,9 +278,12 @@ jetx_rot =  cos(abs(th0))*(jetx-stx0) + sin(abs(th0))*(jety-sty0) + stx0
 jety_rot = -sin(abs(th0))*(jetx-stx0) + cos(abs(th0))*(jety-sty0) + sty0
 xjet=jetx_rot & yjet=jety_rot
 
+save,file='jettrace_anal.sav',xjet,yjet
+
 case Lj of
    1e35: restore,file='/d/d2/yoon/out_FLASH3.3_mhd/out_mHD_Binary_sphere/sphere_1e35/jettrace2_1e35_700_smp3.sav' 
-   1e36: restore,file='/d/d7/yoon/out_FLASH3.3_mhd/out_mHD_Binary_sphere/_WRO_sphere_1e36_high/jettrace2_1e36_851_smp3.sav' 
+;   1e36: restore,file='/d/d7/yoon/out_FLASH3.3_mhd/out_mHD_Binary_sphere/_WRO_sphere_1e36_high/jettrace2_1e36_851_smp3.sav' 
+   1e36: restore,file='/d/d7/yoon/out_FLASH3.3_mhd/out_mHD_Binary_sphere/sphere_1e36/jettrace_1e36_417.sav'
    1e37: restore,file='/d/d7/yoon/out_FLASH3.3_mhd/out_mHD_Binary_sphere/_WRO_sphere_1e37_old/jettrace2_1e37_400_smp4.sav' 
    else: print, 'out of range in Energy'
 endcase
@@ -272,6 +292,10 @@ window,4
 plot,xjet,yjet,xra=[-6.e12,-1.e12],/xst,/iso,yra=[0.,8e12],/yst
 oplot,x2,z2
 end
+
+
+
+
 
 pro errorchk, ps=ps
 

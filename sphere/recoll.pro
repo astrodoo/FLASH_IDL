@@ -95,7 +95,6 @@ tvlct,r,g,b
 ;for i=0,nl-1 do contour, reform(jj[*,*,zind[i]]),x,y,levels=jcrit,/overplot,color=lcolor[i]
 ;epsfree
 
-;<<<<<<< HEAD:sphere/recoll.pro
 ;stop
 ;=======
 jyz = reform(jj[xjind,*,zjind:*])
@@ -112,7 +111,6 @@ color_bar,/right,lim=[minv,maxv],bartitle='jj'
 
 epsfree
 stop
-;>>>>>>> a5c8634191e1576e9dfd58d4d6e4510107346297:sphere/recoll.pro
 end
 
 pro comp_jet
@@ -134,7 +132,8 @@ loadct,39,/sil
 recz = 7.e11
 mkeps,'recoll_compjet',xs=20.,ys=20.*6./8.
 plot,jyl10,zj10,xr=[-8.e11,8.e11],yr=[0.,1.3e12],/xst,/yst,/iso,xtitle='y [cm]',ytitle='z [cm]'
-oplot,jyr10,zj10
+;oplot,jyr10,zj10
+oplot,-jyl10,zj10
 ;recz10 = 3.1e11
 oplot,!x.crange,[recz,recz],line=1
 und10_ind = where(zj10 le recz)
@@ -143,7 +142,8 @@ oplot,[0.,-4.e11],[0.,fit10[1]*(-4.e11)],line=2
 xyouts,2.e11,4.e11,/data, textoidl('\alpha = ') + string(90.-atan(abs(fit10[1]))/!dtor,format='(f5.2)') +' deg'
 
 oplot,jyl30,zj30,color=50
-oplot,jyr30,zj30,color=50
+oplot,-jyl30,zj30,color=50
+;oplot,jyr30,zj30,color=50
 ;recz = 6.8e11
 oplot,!x.crange,[recz,recz],line=1
 und30_ind = where(zj30 le recz)
@@ -153,13 +153,16 @@ xyouts,2.e11,3.2e11,/data, textoidl('\alpha = ') + string(90.-atan(abs(fit30[1])
 legend,['M10','M30'],line=0,color=[0,50],textcolor=[0,50],/right,/bottom,box=0
 epsfree
 
-jthk10 = jyr10-jyl10
-jthk30 = jyr30-jyl30
+;jthk10 = jyr10-jyl10
+;jthk30 = jyr30-jyl30
+
+jthk10 = 2*abs(jyl10)
+jthk30 = 2*abs(jyl30)
 
 mkeps,'recoll_compjet_thick',xs=20.,ys=20.*6./8.
 ;cutz10 = 4.1e11
 cutz10 = 1.3e12
-plot,zj10[where(zj10 le cutz10)],jthk10[where(zj10 le cutz10)], xra=[0.,1.3e12],yra=[0.,5.e11], /xst,/yst,xtitle='z [cm]', ytitle='jet thickness [cm]',xtickinterval=4.e11
+plot,zj10[where(zj10 le cutz10)],jthk10[where(zj10 le cutz10)], xra=[0.,1.e12],yra=[0.,5.e11], /xst,/yst,xtitle='z [cm]', ytitle='jet thickness [cm]',xtickinterval=4.e11
 cutz30 = 1.3e12
 oplot,zj30[where(zj30 le cutz30)],jthk30[where(zj30 le cutz30)],color=50
 oplot,[recz,recz],!y.crange,line=1

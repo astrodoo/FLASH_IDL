@@ -1,29 +1,19 @@
-pro jetthick,rotback=rotback
+pro jetthick,n,sample=sample,xc0=xc0,yc0=yc0,zc0=zc0,rotback=rotback,mkdata=mkdata
 
 ;(-2.e12,0) (-2.6e12,2.395e12) (-3.8e12,4.791e12) (-5.e12,6.798e12)  for 1e36
  
-xc0 = -2.e12
-yc0 = 0. 
-zc0 = 1.e12
-
-sample=4
-;n=474
-;n=519
-;n=850
-;n=404
-;n=494
-;n=900
-;n=426
-;n=462
-n=536
-;n=501
+if (n_elements(sample) eq 0) then sample=3
+if not keyword_set(xc0) then xc0=-2.e12
+if not keyword_set(yc0) then yc0=0.
+if not keyword_set(zc0) then zc0=0.
 
 fname='jetthick_'+strtrim(n,2)
-;fname='jetthick_'+strtrim(n,2)+'_smp0.1'
 crit=0.1
 out=fname+'_crit'+string(crit,format='(f3.1)')
 ;dens = dload(n,var='dens',xc=xc0,yc=yc0,zc=zc0,x,y,z,sample=sample,time)
 ;pres = dload(n,var='pres',xc=xc0,yc=yc0,zc=zc0,sample=sample)
+
+if keyword_set(mkdata) then begin
 jet  = dload(n,var='jet',xc=xc0,yc=yc0,zc=zc0,sample=sample)
 velz = dload(n,var='velz',xc=xc0,yc=yc0,zc=zc0,x,y,z,sample=sample,time)
 
@@ -45,8 +35,6 @@ if keyword_set(rotback) then begin
    velz=velz_rot
    print,'complete rotating'
 endif
-
-
 
 z0ind_tmp = where(z ge 0) & z0ind = z0ind_tmp[0]
 
@@ -96,29 +84,44 @@ for i=z0ind,sz[2]-1 do begin
     endelse
 endfor
 
+window,2,xs=sz[0],ys=sz[1]
+tvscl,reform(velz2[*,256,*])
+
+save,filename=out+'.sav',z2,thickx,thicky,xx1,xx2,yy1,yy2
+
+endif else restore,file=out+'.sav'
+
 ;h0 = 2.* 1.25e10
 
 window,0
 plot,z2,thicky,/xst,xtitle='z [cm]',ytitle='thickness of the jet'
 
-zshift = 2.5e12
+
+;zshift = 2.5e12
 ;zshift = 2.e11
 ;zshift=0.
 ;h0=3.28980e+10 ; 2.5d10 
 ;h0=8.e11 ;5.2e+10 ; 2.5d10 
 ;h0=5.e11 ;5.2e+10 ; 2.5d10 
 ;h0=0.8e11 ;5.2e+10 ; 2.5d10 
-h0 = 3.e11 ; 2.5d10 
+;h0 = 3.e11 ; 2.5d10 
 ;h0=2.5d10
 ;P0=1300 ;563.
-P0=1300 ;563.
-dw=2d-14
-vw=2.5d8
+;P0=563.
+;dw=2d-14
+;vw=2.5d8
+;dw=1.91792d-14
+;vw=2.25343d8
 gam=4./3.
+
+zshift=0.
+h0=1.5e11
+
 ll=3.e12
 zz=findgen(1000)/1000.*2.e13
 ;hh = h0*(P0/(dw*vw*vw*cos(th_an)^4.))^(1./2./gam)/cos(th_an)
-hh = h0*(P0/(dw*vw*vw))^(1./2./gam) * (zz^2./ll^2.+1)^(1./gam)
+;hh = h0*(P0/(dw*vw*vw))^(1./2./gam) * (zz^2./ll^2.+1)^(1./gam)
+hh = h0*(zz^2./ll^2.+1.)^(1./gam)
 
 ;th2 = 15. * !dtor
 ;tanth2 = tan(th2)
@@ -128,7 +131,6 @@ hh = h0*(P0/(dw*vw*vw))^(1./2./gam) * (zz^2./ll^2.+1)^(1./gam)
 oplot,zz+zshift,hh,line=2
 ;oplot,zz+zshift,hh2,line=2
 
-save,filename=out+'.sav',z2,thickx,thicky,xx1,xx2,yy1,yy2
 stop
 end
 
