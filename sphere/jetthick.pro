@@ -9,7 +9,7 @@ if not keyword_set(zc0) then zc0=0.
 
 fname='jetthick_'+strtrim(n,2)
 if not keyword_set(crit) then crit=0.1
-out=fname+'_crit'+string(crit,format='(f3.1)')
+out=fname+'_crit'+string(crit,format='(f4.2)')
 ;dens = dload(n,var='dens',xc=xc0,yc=yc0,zc=zc0,x,y,z,sample=sample,time)
 ;pres = dload(n,var='pres',xc=xc0,yc=yc0,zc=zc0,sample=sample)
 
@@ -137,14 +137,14 @@ end
 
 pro jetthick_comb,ps=ps
 
-fname = 'jetthick_408'
+fname = 'jetthick_413'
 restore,file=fname+'_crit0.05.sav'
 z05 = z2 & thicky05=thicky
-restore,file=fname+'_crit0.1.sav'
+restore,file=fname+'_crit0.10.sav'
 z1 = z2 & thicky1=thicky
-restore,file=fname+'_crit0.2.sav'
+restore,file=fname+'_crit0.20.sav'
 z2 = z2 & thicky2=thicky
-restore,file=fname+'_crit0.3.sav'
+restore,file=fname+'_crit0.30.sav'
 z3 = z2 & thicky3=thicky
 
 window,0
@@ -156,8 +156,8 @@ oplot,z3,thicky3
 ; analytic sol
 gam=4./3.
 ;zshift=0.
-zshift=0
-h0=1.8e11
+zshift=-1.e12
+h0=1.5e11
 
 ll=3.e12
 zz=findgen(1000)/1000.*2.e13
