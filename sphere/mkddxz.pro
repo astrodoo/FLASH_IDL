@@ -11,7 +11,7 @@ if not keyword_set(yc0) then yc0 = 0.
 if not keyword_set(zc0) then zc0 = 0.
 if not keyword_set(jeton) then jeton = 9.76e4
 
-fout = 'ddxz_'+string(n,format='(I4.4)')
+fout = 'ddxz_'+string(n,format='(I4.4)')+ '.sav'
 
 fname = 'JetSet_hdf5_plt_cnt_'+string(n,format='(I4.4)')
 

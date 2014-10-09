@@ -1,6 +1,8 @@
 pro pp_jetthick,ps=ps
 
-dir='/d/d7/yoon/out_FLASH3.3_mhd/out_mHD_Binary_sphere/sphere_1e36_high/'
+;dir='/d/d7/yoon/out_FLASH3.3_mhd/out_mHD_Binary_sphere/sphere_1e36_high/'
+dir=''
+
 fname='jetthick_yz_850'
 opt='crit7'
 restore,filename=dir+fname+'_smp0_1_'+opt+'.sav'

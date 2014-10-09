@@ -1,4 +1,4 @@
-pro jettrace_rot
+pro jettrace_rot, n, sample=sample
 
 device,decomposed=0
 
@@ -7,9 +7,7 @@ yc0 = 0.
 zc0 = 0. 
 
 ;n=534 ;589
-n=260 
-
-sample=3
+if (n_elements(sample) eq 0) then sample=2
 
 ;velz = dload(700,var='velz',xc=xc0,yc=yc0,zc=zc0,x,y,z,sample=sample,time)
 ;jet = dload(490,var='jet',xc=xc0,yc=yc0,zc=zc0,x,y,z,sample=sample,time)

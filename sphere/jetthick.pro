@@ -1,4 +1,4 @@
-pro jetthick,n,sample=sample,xc0=xc0,yc0=yc0,zc0=zc0,rotback=rotback,mkdata=mkdata
+pro jetthick,n,sample=sample,xc0=xc0,yc0=yc0,zc0=zc0,rotback=rotback,mkdata=mkdata, crit=crit
 
 ;(-2.e12,0) (-2.6e12,2.395e12) (-3.8e12,4.791e12) (-5.e12,6.798e12)  for 1e36
  
@@ -8,7 +8,7 @@ if not keyword_set(yc0) then yc0=0.
 if not keyword_set(zc0) then zc0=0.
 
 fname='jetthick_'+strtrim(n,2)
-crit=0.1
+if not keyword_set(crit) then crit=0.1
 out=fname+'_crit'+string(crit,format='(f3.1)')
 ;dens = dload(n,var='dens',xc=xc0,yc=yc0,zc=zc0,x,y,z,sample=sample,time)
 ;pres = dload(n,var='pres',xc=xc0,yc=yc0,zc=zc0,sample=sample)
@@ -114,8 +114,9 @@ plot,z2,thicky,/xst,xtitle='z [cm]',ytitle='thickness of the jet'
 ;vw=2.25343d8
 gam=4./3.
 
-zshift=0.
-h0=1.5e11
+;zshift=0.
+zshift=5.e11
+h0=2.e11
 
 ll=3.e12
 zz=findgen(1000)/1000.*2.e13
@@ -136,82 +137,114 @@ end
 
 pro jetthick_comb,ps=ps
 
-dir2 = 'lowRes/'
-dir3 = 'superlowRes/'
-fname='jetthick_481'
-restore, fname+'_crit0.1.sav'
-z21 = z2 & thickx1=thickx & thicky1=thicky & xx11 = xx1 & xx21=xx2 
-fname='jetthick_450'
-restore, dir2+fname+'_crit0.1.sav'
-z22 = z2 & thickx2=thickx & thicky2=thicky & xx12 = xx1 & xx22=xx2
-restore, dir3+fname+'_crit0.1.sav'
-z23 = z2 & thickx3=thickx & thicky3=thicky & xx13 = xx1 & xx23=xx2
+fname = 'jetthick_408'
+restore,file=fname+'_crit0.05.sav'
+z05 = z2 & thicky05=thicky
+restore,file=fname+'_crit0.1.sav'
+z1 = z2 & thicky1=thicky
+restore,file=fname+'_crit0.2.sav'
+z2 = z2 & thicky2=thicky
+restore,file=fname+'_crit0.3.sav'
+z3 = z2 & thicky3=thicky
 
-!p.charsize=1.5
-loadct,39,/sil
-if keyword_set(ps) then mkeps,fname+'_comb',xs=20.,ys=15. $
-else begin
-     !p.background=255 & !p.color=0
-     window,0,xs=800,ys=600
-endelse
+window,0
+plot,z05,thicky05
+oplot,z1,thicky1
+oplot,z2,thicky2
+oplot,z3,thicky3
 
-plot,z21,thicky1,xtitle='z [cm]' ,ytitle='thickness of the jet [cm]',xmargin=[12,3],xra=[0.,1.1e13],/xst
-oplot,z22,thicky2,color=50
-oplot,z23,thicky3,color=250
-
-;oplot,z21,thickx1,color=50
-;oplot,z22,thickx2,color=50
-;oplot,z23,thickx3,color=50
-
-; draw analytic expectations
-;h0=3.28980e+10 ; 2.5d10 
-zshift = 2.e12
-h0=3.e11 ;5.2e+10 ; 2.5d10 
-;P0=1300 ;563.
-P0=1250 ;563.
-dw=2d-14
-vw=2.5d8
+; analytic sol
 gam=4./3.
+;zshift=0.
+zshift=0
+h0=1.8e11
+
 ll=3.e12
 zz=findgen(1000)/1000.*2.e13
-;hh = h0*(P0/(dw*vw*vw*cos(th_an)^4.))^(1./2./gam)/cos(th_an)
-hh = h0*(P0/(dw*vw*vw))^(1./2./gam) * (zz^2./ll^2.+1)^(1./gam)
-oplot,zz+zshift,hh,line=2,thick=3.
+hh = h0*(zz^2./ll^2.+1.)^(1./gam)
 
-;oplot,th_an/!dtor,thick_an,line=2,color=fsc_color('magenta')
-;legend,['simulation (para)','simulation (perp)','analytic solution'],/right,/bottom,box=0,line=[0,0,2] $
-;      ,color=[50,0,0] ,textcolor=[50,0,0],charsize=1.5
+oplot,zz+zshift,hh,line=2
 
-;legend,'crit'+['0.05','0.1','0.2','0.3'],/left,/top,box=0,line=0, $
-;      color=[0,50,150,250] ,textcolor=[0,50,150,250],charsize=1.5
-legend,'Resol: '+['Standard','half','quarter'],/left,/top,box=0,line=0, $
-      color=[0,50,250] ,textcolor=[0,50,250],charsize=1.5
-
-;oplot,[4.5e11,4.5e11],10.^!y.crange,line=1
-;oplot,[2.e12,2.e12],10.^!y.crange,line=1
-;xyouts,2.e11,7.e11,/data,'I',charsize=2.,charthick=3.
-;xyouts,1.1e12,7.e11,/data,'II',charsize=2.,charthick=3.
-;xyouts,2.4e12,7.e11,/data,'III',charsize=2.,charthick=3.
-
-if keyword_set(ps) then epsfree
-
-if keyword_set(ps) then mkeps,fname+'_comb2',xs=20.,ys=20.*60./45. $
-else window,1,xs=450,ys=600
-
-plot,xx11,z21,/iso,xra=[-7.e12,6.e12],/xst,xtickinterval=3.e12, xtitle='x [cm]', ytitle='y [cm]',title='jet position in resolution test' $
-    ,xmargin=[12,3]
-oplot,xx12,z22, color=50
-oplot,xx13,z23, color=250
-
-legend,['Standard','half','quarter'],/right,/top,box=0,line=0, $
-      color=[0,50,250] ,textcolor=[0,50,250],charsize=1.5
-if keyword_set(ps) then epsfree
 stop
 end
+;pro jetthick_comb,ps=ps
+;
+;dir2 = 'lowRes/'
+;dir3 = 'superlowRes/'
+;fname='jetthick_481'
+;restore, fname+'_crit0.1.sav'
+;z21 = z2 & thickx1=thickx & thicky1=thicky & xx11 = xx1 & xx21=xx2 
+;fname='jetthick_450'
+;restore, dir2+fname+'_crit0.1.sav'
+;z22 = z2 & thickx2=thickx & thicky2=thicky & xx12 = xx1 & xx22=xx2
+;restore, dir3+fname+'_crit0.1.sav'
+;z23 = z2 & thickx3=thickx & thicky3=thicky & xx13 = xx1 & xx23=xx2
+;
+;!p.charsize=1.5
+;loadct,39,/sil
+;if keyword_set(ps) then mkeps,fname+'_comb',xs=20.,ys=15. $
+;else begin
+;     !p.background=255 & !p.color=0
+;     window,0,xs=800,ys=600
+;endelse
+;
+;plot,z21,thicky1,xtitle='z [cm]' ,ytitle='thickness of the jet [cm]',xmargin=[12,3],xra=[0.,1.1e13],/xst
+;oplot,z22,thicky2,color=50
+;oplot,z23,thicky3,color=250
+;
+;;oplot,z21,thickx1,color=50
+;;oplot,z22,thickx2,color=50
+;;oplot,z23,thickx3,color=50
+;
+;; draw analytic expectations
+;;h0=3.28980e+10 ; 2.5d10 
+;zshift = 2.e12
+;h0=3.e11 ;5.2e+10 ; 2.5d10 
+;;P0=1300 ;563.
+;P0=1250 ;563.
+;dw=2d-14
+;vw=2.5d8
+;gam=4./3.
+;ll=3.e12
+;zz=findgen(1000)/1000.*2.e13
+;;hh = h0*(P0/(dw*vw*vw*cos(th_an)^4.))^(1./2./gam)/cos(th_an)
+;hh = h0*(P0/(dw*vw*vw))^(1./2./gam) * (zz^2./ll^2.+1)^(1./gam)
+;oplot,zz+zshift,hh,line=2,thick=3.
+;
+;;oplot,th_an/!dtor,thick_an,line=2,color=fsc_color('magenta')
+;;legend,['simulation (para)','simulation (perp)','analytic solution'],/right,/bottom,box=0,line=[0,0,2] $
+;;      ,color=[50,0,0] ,textcolor=[50,0,0],charsize=1.5
+;
+;;legend,'crit'+['0.05','0.1','0.2','0.3'],/left,/top,box=0,line=0, $
+;;      color=[0,50,150,250] ,textcolor=[0,50,150,250],charsize=1.5
+;legend,'Resol: '+['Standard','half','quarter'],/left,/top,box=0,line=0, $
+;      color=[0,50,250] ,textcolor=[0,50,250],charsize=1.5
+;
+;;oplot,[4.5e11,4.5e11],10.^!y.crange,line=1
+;;oplot,[2.e12,2.e12],10.^!y.crange,line=1
+;;xyouts,2.e11,7.e11,/data,'I',charsize=2.,charthick=3.
+;;xyouts,1.1e12,7.e11,/data,'II',charsize=2.,charthick=3.
+;;xyouts,2.4e12,7.e11,/data,'III',charsize=2.,charthick=3.
+;
+;if keyword_set(ps) then epsfree
+;
+;if keyword_set(ps) then mkeps,fname+'_comb2',xs=20.,ys=20.*60./45. $
+;else window,1,xs=450,ys=600
+;
+;plot,xx11,z21,/iso,xra=[-7.e12,6.e12],/xst,xtickinterval=3.e12, xtitle='x [cm]', ytitle='y [cm]',title='jet position in resolution test' $
+;    ,xmargin=[12,3]
+;oplot,xx12,z22, color=50
+;oplot,xx13,z23, color=250
+;
+;legend,['Standard','half','quarter'],/right,/top,box=0,line=0, $
+;      color=[0,50,250] ,textcolor=[0,50,250],charsize=1.5
+;if keyword_set(ps) then epsfree
+;stop
+;end
 
 pro jetthick_cont,ps=ps
 
-fname='jetthick_494'
+fname='jetthick_408'
 n=494
 sample=4
 restore, fname+'_crit0.05.sav'
