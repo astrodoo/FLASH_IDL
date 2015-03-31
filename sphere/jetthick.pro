@@ -137,7 +137,7 @@ end
 
 pro jetthick_comb,ps=ps
 
-fname = 'jetthick_413'
+fname = 'jetthick_463'
 restore,file=fname+'_crit0.05.sav'
 z05 = z2 & thicky05=thicky
 restore,file=fname+'_crit0.10.sav'
@@ -147,24 +147,37 @@ z2 = z2 & thicky2=thicky
 restore,file=fname+'_crit0.30.sav'
 z3 = z2 & thicky3=thicky
 
-window,0
-plot,z05,thicky05
-oplot,z1,thicky1
-oplot,z2,thicky2
-oplot,z3,thicky3
+loadct,39,/sil
+
+if keyword_set(ps) then mkeps, fname+'_comb',xs=20.,ys=20.*6./8 $
+ else window,0
+
+!p.thick=3
+z05_dummy = z05
+z05[where(z05_dummy le 3.e11)] = !values.f_nan
+thicky05[where(z05_dummy le 3.e11)] = !values.f_nan
+z05 = z05[where(finite(z05))]
+thicky05 = thicky05[where(finite(thicky05))]
+
+plot,z05,thicky05, line=2, xtitle='z [cm]', ytitle='thickness of the jet [cm]',xmargin=[11,4],xra=[0.,1.e13],/xst
+oplot,z1,thicky1, line=3, color=50
+oplot,z2,thicky2, line=4, color=150
+oplot,z3,thicky3, line=5, color=250
 
 ; analytic sol
 gam=4./3.
-;zshift=0.
-zshift=-1.e12
-h0=1.5e11
+zshift=0.
+h0=1.7e11
 
 ll=3.e12
 zz=findgen(1000)/1000.*2.e13
 hh = h0*(zz^2./ll^2.+1.)^(1./gam)
 
-oplot,zz+zshift,hh,line=2
+oplot,zz+zshift,hh,thick=4
 
+legend,'crit'+['0.05','0.1','0.2','0.3'],color=[0,50,150,250],textcolor=[0,50,150,250],box=0,/left,/top,line=[2,3,4,5], thick=3
+
+if keyword_set(ps) then epsfree
 stop
 end
 ;pro jetthick_comb,ps=ps

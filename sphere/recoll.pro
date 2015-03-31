@@ -112,14 +112,14 @@ stop
 end
 
 pro comp_jet
-dir = '/d/d7/yoon/out_FLASH3.3_mhd/out_mHD_Binary_sphere/re-coll/M10lateral0.01/'
+dir = '/d/d7/yoon/out_FLASH3.3_mhd/out_Jet_SphWind/re-coll/M10lateral0.01/'
 restore,file=dir+'recoll_M10_0500_jet.sav'
 zj10 = zj[where((jyl ne 0) and (jyr ne 0))] & jyl10 = jyl[where((jyl ne 0) and (jyr ne 0))] & jyr10 = jyr[where((jyl ne 0) and (jyr ne 0))]
 
 ;jyl10[where(jyl10 eq 0)] = !values.f_nan
 ;jyr10[where(jyr10 eq 0)] = !values.f_nan
 
-dir = '/d/d7/yoon/out_FLASH3.3_mhd/out_mHD_Binary_sphere/re-coll/M30lateral0.01/'
+dir = '/d/d7/yoon/out_FLASH3.3_mhd/out_Jet_SphWind/re-coll/M30lateral0.01/'
 restore,file=dir+'recoll_M30_0440_jet.sav'
 zj30 = zj[where((jyl ne 0) and (jyr ne 0))] & jyl30 = jyl[where((jyl ne 0) and (jyr ne 0))] & jyr30 = jyr[where((jyl ne 0) and (jyr ne 0))]
 
@@ -129,6 +129,7 @@ zj30 = zj[where((jyl ne 0) and (jyr ne 0))] & jyl30 = jyl[where((jyl ne 0) and (
 loadct,39,/sil
 recz = 7.e11
 mkeps,'recoll_compjet',xs=20.,ys=20.*6./8.
+!p.thick=4.
 plot,jyl10,zj10,xr=[-8.e11,8.e11],yr=[0.,1.3e12],/xst,/yst,/iso,xtitle='y [cm]',ytitle='z [cm]'
 ;oplot,jyr10,zj10
 oplot,-jyl10,zj10
@@ -158,6 +159,7 @@ jthk10 = 2*abs(jyl10)
 jthk30 = 2*abs(jyl30)
 
 mkeps,'recoll_compjet_thick',xs=20.,ys=20.*6./8.
+!p.thick=4.
 ;cutz10 = 4.1e11
 cutz10 = 1.3e12
 plot,zj10[where(zj10 le cutz10)],jthk10[where(zj10 le cutz10)], xra=[0.,1.e12],yra=[0.,5.e11], /xst,/yst,xtitle='z [cm]', ytitle='jet thickness [cm]',xtickinterval=4.e11
