@@ -2,13 +2,22 @@ pro clip2d,fname,xc0=xc0,yc0=yc0,xrange=xrange,yrange=yrange,zrange=zrange,sampl
           ,xcut=xcut,ycut=ycut,zcut=zcut,maxlref_sim=maxlref_sim,out=out
 
 ; for '/d/d7/yoon/out_FLASH3.3_mhd/out_Jet_SphWind/sphere_1e37'
-xrange=[-1.5e13,5.e12]
-yrange=[-1.e13,1.e13]
-zrange=[-3.e11,1.9e13]
-startn=399
-endn=400
-sample=3
-maxlref_sim=11
+;xrange=[-1.5e13,5.e12]
+;yrange=[-1.e13,1.e13]
+;zrange=[-3.e11,1.9e13]
+;startn=399
+;endn=400
+;sample=3
+;maxlref_sim=11
+;xcut=-2.e12
+;ycut=0.
+
+; for /d/d7/yoon/out_FLASH3.3_mhd/out_Jet_SphWind/re-coll/L38_M30_lg
+zrange=[-3.e11,2.e13]
+;startn=2634
+;endn=2634
+sample=5
+maxlref_sim=12
 xcut=-2.e12
 ycut=0.
 
@@ -145,8 +154,9 @@ for jj=start_j,end_j do begin
     k++
 endfor
 
-strexe2 = execute('save,file='+out+',x,y,z,data,'+strzcut+strxcut+strycut)
+strexe2 = execute("save,file='"+out+"',x,y,z,data,"+strzcut+strxcut+strycut)
 
+stop
 end
 
 
