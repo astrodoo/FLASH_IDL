@@ -29,7 +29,6 @@ v3xz = reform(loaddata(file,'velz',sample=sample,yrange=[ycut,ycut]))
 save,file='jet_snap_'+id+'.sav',dyz,lyz,pyz,jyz,v1yz,v2yz,v3yz, dxz,lxz,pxz,jxz,v1xz,v2xz,v3xz, x,y,z, time, id
 endif else restore,file='jet_snap_'+id+'.sav'
 
-
 zcut = 1.5e13
 zcind = (where(z ge zcut))[0]
 dyz = reform(dyz[*,0:zcind])
