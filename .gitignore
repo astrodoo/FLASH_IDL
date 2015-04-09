@@ -3,6 +3,7 @@
 *_old
 *.sav
 *.eps
+*.ps
 *.swp
 *.png
 *.dat
