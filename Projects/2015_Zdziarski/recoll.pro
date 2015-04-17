@@ -1,7 +1,8 @@
 pro recoll,mkdata=mkdata
 device,decomposed=0
 
-restore,file='jet_snap_1e38.sav'
+restore,file='jet_snap_1e38lw.sav'
+;restore,file='jet_snap_1e38.sav'
 
 zcut0 = 0.
 zcind = (where(z ge zcut0))[0]
@@ -28,7 +29,8 @@ for i=0,nz2-1 do begin
     endelse
 endfor
 
-save,file='recoll_1e38.sav',z,jyl,jyr,time
+save,file='recoll_1e38lw.sav',z,jyl,jyr,time
+;save,file='recoll_1e38.sav',z,jyl,jyr,time
 
 loadct,0,/sil
 window,0
@@ -76,5 +78,41 @@ multiplot,/reset
 
 epsfree
 
+stop
+end
+
+pro recoll_comp
+
+restore,file='recoll_1e38.sav'
+z1 = z & jyl1 = jyl & jyr1 = jyr
+restore,file='recoll_1e38lw.sav'
+z2 = z & jyl2 = jyl & jyr2 = jyr
+
+
+loadct,39,/sil
+;!p.background=255 & !p.color=0
+
+mkeps,'recoll_comp1',xs=20., ys=20.*5./3.
+plot,jyl1,z1,xtitle='y [cm]',ytitle='z [cm]',/iso,xrange=[-3.e12,3.e12],yrange=[0.,1.5e13],/xst,/yst
+oplot,jyr1,z1
+oplot,jyl2,z2,color=254
+oplot,jyr2,z2,color=254
+
+legend,['max lref=11','max lref=12'],line=0,color=[254,0],textcolor=[254,0],box=0,/right,/top
+epsfree
+
+jthick1 = jyr1-jyl1
+jthick2 = jyr2-jyl2
+
+
+min_jth1 = (where(jthick1 gt 0))[0]
+min_jth2 = (where(jthick2 gt 0))[0]
+
+jthick1 = jthick1 > min_jth1
+jthick2 = jthick2 > min_jth2
+
+mkeps,'recoll_comp2',xs=30.,ys=30.*5./8.
+plot,z1, abs(jthick1-jthick2)/abs(jthick1), xtitle='z [cm]',ytitle='|r1-r2|/r1',xra=[0.,1.5e13],yra=[0.,0.5],/yst,/xst,xtickinterval=5.e12
+epsfree
 stop
 end

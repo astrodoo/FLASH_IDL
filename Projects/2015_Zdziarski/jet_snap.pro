@@ -1,11 +1,14 @@
 pro jet_snap,mkdata=mkdata
 
-file = '/d/d7/yoon/out_FLASH3.3_mhd/out_Jet_SphWind/re-coll/L38_M30_lg/JetSet_hdf5_plt_cnt_2761'
+;file = '/d/d7/yoon/out_FLASH3.3_mhd/out_Jet_SphWind/re-coll/L38_M30_lg/JetSet_hdf5_plt_cnt_2761'
+file = '/d/d7/yoon/out_FLASH3.3_mhd/out_Jet_SphWind/re-coll/L38_M30_lg/JetSet_hdf5_plt_cnt_2682'
+;file = '/d/d7/yoon/out_FLASH3.3_mhd/out_Jet_SphWind/re-coll/L38_M30_lw/JetSet_hdf5_plt_cnt_2682'
 
-;sample=5
-sample=4
+sample=5
+;sample=4
 xcut = -2.e12
 ycut = 0.
+;id = '1e38lw'
 id = '1e38'
 
 if keyword_set(mkdata) then begin
@@ -57,7 +60,7 @@ mind=min(dyz) & maxd=max(dyz)
 minp = 5. & maxp=1.e3
 minjv=min(jvyz) & maxjv=max(jvyz)
 tvcoord,bytscl(alog10(dyz),min=alog10(mind),max=alog10(maxd)),y,z,pos=[pltx0,plty0,pltx0+pltsz[0],plty0+pltsz[1]],/dev,/axes,ytitle='z [cm]'
-legend,'L1E38',/left,/top,box=0
+legend,id,/left,/top,box=0
 color_bar,lim=[mind,maxd],/log,/top,bartitle='density',titlegap=0.04
 loadct,3
 tvcoord,bytscl(jvyz,min=minjv,max=maxjv),y,z,pos=[pltx0+pltsz[0],plty0,pltx0+2*pltsz[0],plty0+pltsz[1]],/dev,/axes,ytickformat='(a1)'

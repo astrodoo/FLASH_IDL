@@ -5,9 +5,10 @@ pro guitar_head2
 xra=[0.,3.e16]
 yra=[-5.e15,7e16]
 sample=1
+dir = '/d/d2/yoon/out_FLASH3.3_mhd/out_PWNe/out_PWN2d/out_guitar_head/dl_0.1/'
 fname='PWN2d_hdf5_plt_cnt_0500'
 
-d = loaddata(fname+'_dl0.1','dens',sample=sample,xCoord=yy,yCoord=xx,xra=xra,yra=yra,time=tt)
+d = loaddata(dir+fname,'dens',sample=sample,xCoord=yy,yCoord=xx,xra=xra,yra=yra,time=tt)
 spE = 1e33
 d0 = 1.67d-24
 d1 = d0*0.7
@@ -18,7 +19,8 @@ xoff1 = 8.e14
 
 d = transpose(d)
 
-d2 = loaddata(fname+'_dh0.1','dens',sample=sample,xCoord=yy,yCoord=xx,xra=xra,yra=yra)
+dir2 = '/d/d2/yoon/out_FLASH3.3_mhd/out_PWNe/out_PWN2d/out_guitar_head/dh_0.1/'
+d2 = loaddata(dir2+fname,'dens',sample=sample,xCoord=yy,yCoord=xx,xra=xra,yra=yra)
 d2 = transpose(d2)
 d02 = d0/0.7
 Rst2 = Rst(d0=d02)
