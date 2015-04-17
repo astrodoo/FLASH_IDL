@@ -67,6 +67,14 @@ while ~EOF(lun1) do begin
 endwhile
 free_lun,lun1
 
+cputime = cputime[1:*]
+step = step[1:*]
+phytime = phytime[1:*]
+phydt = phydt[1:*]
+nblk = nblk[1:*]
+IO = IO[1:*]
+IO_cputime = IO_cputime[1:*]
+
 save,file='scaling.sav',nproc,cputime,step,phytime,phydt,nblk,IO,IO_cputime
 stop
 end
