@@ -64,7 +64,7 @@ tvscl,vxy,2
 dx = x[2] - x[1]
 dy = y[2] - y[1]
 
-L = total(dxy*vxy^3.*dx*dy) * 2.*(0.5 + 1./(gam*(gam-1.)*mach))
+L = total(dxy*vxy^3.*dx*dy) * 2.*(0.5 + 1./(gam-1.)/mach^2.)
 
 print,"jet Power: ", L
 

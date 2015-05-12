@@ -1,24 +1,27 @@
 pro jet_snap,mkdata=mkdata
 
 ;file = '/d/d7/yoon/out_FLASH3.3_mhd/out_Jet_SphWind/re-coll/L38_M30_lg/JetSet_hdf5_plt_cnt_2761'
-file = '/d/d7/yoon/out_FLASH3.3_mhd/out_Jet_SphWind/re-coll/L38_M30_lg/JetSet_hdf5_plt_cnt_2682'
+;file = '/d/d7/yoon/out_FLASH3.3_mhd/out_Jet_SphWind/re-coll/L38_M30_lg/JetSet_hdf5_plt_cnt_2682'
 ;file = '/d/d7/yoon/out_FLASH3.3_mhd/out_Jet_SphWind/re-coll/L38_M30_lw/JetSet_hdf5_plt_cnt_2682'
+file='/d/d7/yoon/out_FLASH3.3_mhd/out_Jet_SphWind/re-coll/L38_M30_lw_lg/JetSet_hdf5_plt_cnt_3137'
 
-sample=5
-;sample=4
+;sample=5
+sample=4
 xcut = -2.e12
 ycut = 0.
 ;id = '1e38lw'
 id = '1e38'
 
+yrange = [-6.e12,6.e12]
+
 if keyword_set(mkdata) then begin
-dyz = reform(loaddata(file,'dens',sample=sample,xrange=[xcut,xcut],xCoord=xx,yCoord=y,zCoord=z,time=time,lref=lref))
+dyz = reform(loaddata(file,'dens',sample=sample,xrange=[xcut,xcut],xCoord=xx,yCoord=y,zCoord=z,time=time,lref=lref,yra=yrange))
 lyz = reform(lref)
-pyz = reform(loaddata(file,'pres',sample=sample,xrange=[xcut,xcut]))
-jyz = reform(loaddata(file,'jet',sample=sample,xrange=[xcut,xcut]))
-v1yz = reform(loaddata(file,'velx',sample=sample,xrange=[xcut,xcut]))
-v2yz = reform(loaddata(file,'vely',sample=sample,xrange=[xcut,xcut]))
-v3yz = reform(loaddata(file,'velz',sample=sample,xrange=[xcut,xcut]))
+pyz = reform(loaddata(file,'pres',sample=sample,xrange=[xcut,xcut],yra=yrange))
+jyz = reform(loaddata(file,'jet',sample=sample,xrange=[xcut,xcut],yra=yrange))
+v1yz = reform(loaddata(file,'velx',sample=sample,xrange=[xcut,xcut],yra=yrange))
+v2yz = reform(loaddata(file,'vely',sample=sample,xrange=[xcut,xcut],yra=yrange))
+v3yz = reform(loaddata(file,'velz',sample=sample,xrange=[xcut,xcut],yra=yrange))
 
 dxz = reform(loaddata(file,'dens',sample=sample,yrange=[ycut,ycut],xCoord=x,yCoord=yy,zCoord=z,time=time,lref=lref))
 lxz = reform(lref)

@@ -1,8 +1,16 @@
-pro recoll,mkdata=mkdata
+pro recoll
 device,decomposed=0
 
-restore,file='jet_snap_1e38lw.sav'
+;restore,file='jet_snap_1e38lw.sav'
 ;restore,file='jet_snap_1e38.sav'
+
+;dir= '/d/d7/yoon/out_FLASH3.3_mhd/out_Jet_SphWind/re-coll/L6E37_M30_lw_lg/'
+dir= '/d/d7/yoon/out_FLASH3.3_mhd/out_Jet_SphWind/re-coll/L38_M30_lw_lg/'
+fname = 'JetSet_hdf5_plt_cnt_2963'
+sample=4
+
+jyz = reform(loaddata(dir+fname,'jet',sample=sample,xCoord=x,yCoord=y,zCoord=z,xrange=[-2.e12,-2.e12]))
+v3yz = reform(loaddata(dir+fname,'velz',sample=sample,xrange=[-2.e12,-2.e12]))
 
 zcut0 = 0.
 zcind = (where(z ge zcut0))[0]
@@ -29,13 +37,16 @@ for i=0,nz2-1 do begin
     endelse
 endfor
 
-save,file='recoll_1e38lw.sav',z,jyl,jyr,time
-;save,file='recoll_1e38.sav',z,jyl,jyr,time
+;save,file='recoll_1e38lw.sav',z,jyl,jyr,time
+;save,file='recoll_6e37.sav',z,jyl,jyr,time
+save,file='recoll_1e38.sav',z,jyl,jyr,time
 
 loadct,0,/sil
 window,0
 plot,jyl,z,xtitle='y [cm]',ytitle='z [cm]',/iso,xrange=[-3.e12,3.e12],yrange=[0.,1.5e13],/xst,/yst
 oplot,jyr,z
+
+stop
 
 end
 
