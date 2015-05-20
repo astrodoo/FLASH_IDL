@@ -61,12 +61,12 @@ restore,file=dir+'analBow2_0500_10.sav'
 xan10 = x & w1an10 = w1
 
 ; drawing
-x0 = 450 & y0 = 200
-yplt = 300
+x0 = 450. & y0 = 200.
+yplt = 300.
 
 xs = x0 + dsz[0]+420
 ys = y0 + dsz[1]*2 + 100+2*yplt
-psxs=20. & psys=psxs*float(ys)/float(xs)
+psxs=20. & psys=psxs*ys/xs
 
 loadct,0,/sil
 mkeps,'guitar_head2',xs=psxs,ys=psys
@@ -80,7 +80,7 @@ maxd = max([d,d2]) & mind = min([d,d2])
 ;    ,/nodata,position=posnorm([x0,y0+dsz[1],x0+dsz[0],y0+dsz[1]*2],nx=xs,ny=ys),/norm $
 ;    ,/noerase, xtickformat='(a1)', ytickinterval=1.e16
 tvcoord,bytscl(alog10(d),max=alog10(maxd),min=alog10(mind)),xx,yy,psx=float(dsz[0])/xs $
-       ,pos=[float(x0)/float(xs),float(y0+dsz[1]+yplt)/float(ys)],/axes,/black,ytickinterval=1.e16
+       ,pos=[x0/xs,(y0+dsz[1]+yplt)/ys],/axes,/black,ytickinterval=1.e16
 oplot,[xgr1,xgr1],!y.crange,line=1
 oplot,[xgr2,xgr2],!y.crange,line=1
 anacl = 'magenta'
@@ -92,6 +92,8 @@ oplot,xan03[where(xan03 le 3.e16)]-Rst(d0=d0*0.3)-xoff1,w1an03[where(xan03 le 3.
 oplot,xan01[where(xan01 le 2.e16)]-Rst(d0=d0*0.1)-xoff1,w1an01[where(xan01 le 2.e16)],color=250
 arrow,3.e16,2.e16,1.5e16,2.e16,/data
 xyouts,1.8e16,2.2e16,/data,textoidl('\nabla\rho_{0} < 0')
+
+legend,[' 0.1 ',' 0.3 ',' 0.5 ',' 0.7 ','     ']+textoidl('\rho_{0,init}'),textcolor=[250,200,150,100,50],box=0,/left,/top,charsize=1.
 ;oplot,x1-Rst1-xoff1,w11
 ;oplot,x1-Rst1-xoff1,w21
 ;xyouts,1.e15,8.5e15,/data,textoidl('\rho_{1}')
@@ -109,7 +111,7 @@ loadct,0,/sil
 ;    ,/nodata,position=posnorm([x0,y0,x0+dsz[0],y0+dsz[1]],nx=xs,ny=ys),/norm $
 ;    , xtitle='x [cm]',/noerase, ytickinterval=1.e16
 tvcoord,bytscl(alog10(reverse(d2,2)),max=alog10(maxd),min=alog10(mind)),xx,-yy,psx=float(dsz[0])/xs $
-       ,pos=[float(x0)/float(xs),float(y0+yplt)/float(ys)],/axes,/black,ytickinterval=1.e16,xtickformat='(a1)'
+       ,pos=[x0/xs,(y0+yplt)/ys],/axes,/black,ytickinterval=1.e16,xtickformat='(a1)'
 oplot,[xgr1,xgr1],!y.crange,line=1
 oplot,[xgr2,xgr2],!y.crange,line=1
 loadct,39,/sil
@@ -120,7 +122,8 @@ oplot,xan7[where(xan7 le 3.e16)]-Rst(d0=d0*7)-xoff1,-w1an7[where(xan7 le 3.e16)]
 oplot,xan10[where(xan10 le 2.e16)]-Rst(d0=d0*10)-xoff1,-w1an10[where(xan10 le 2.e16)],color=250
 arrow,3.e16,-2.e16,1.5e16,-2.e16,/data
 xyouts,1.8e16,-2.4e16,/data,textoidl('\nabla\rho_{0} > 0')
-;
+
+legend,['  10 ','   7 ','   5 ','   3 ','     ']+textoidl('\rho_{0,init}'),textcolor=[250,200,150,100,50],box=0,/left,/bottom,charsize=1.
 ;oplot,x2-Rst2-xoff2,-w12
 ;oplot,x2-Rst2-xoff2,-w22
 ;xyouts,1.e15,-8.5e15,/data,textoidl('\rho_{2}=0.7\rho_{1}')
