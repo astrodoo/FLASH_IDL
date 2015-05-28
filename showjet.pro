@@ -26,9 +26,9 @@ if not keyword_set(zrange) then str_zra = '' $
   else str_zra = 'zra=['+strtrim(zrange[0],2)+','+strtrim(zrange[1],1)+']'
 
 if keyword_set(xrange) then begin
-   if keyword_set(yrange) then yrange = ','+yrange
-   if keyword_set(zrange) then zrange = ','+zrange
-endif else if (keyword_seT(yrange) and keyword_set(zrange)) then zrange = ','+zrange 
+   if keyword_set(yrange) then str_yra = ','+str_yra
+   if keyword_set(zrange) then str_zra = ','+str_zra
+endif else if (keyword_seT(yrange) and keyword_set(zrange)) then str_zra = ','+str_zra
 
 str_xyzra = str_xra+str_yra+str_zra
 if (strmid(str_xyzra,0,1,/reverse) eq ']') then str_xyzra = str_xyzra+','

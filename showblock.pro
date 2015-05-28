@@ -13,6 +13,8 @@ if not keyword_set(cline)  then cline=0
 if not keyword_set(cthick) then cthick=1
 if not keyword_set(ccolor) then ccolor=180
 
+if ((n_elements(xc) eq 0) and (n_elements(yc) eq 0) and (n_elements(zc) eq 0)) then print,'2 Dimension Grid'
+
 for i=0L,param.totblocks-1 do begin
 ;Y-Z plane at x=xc
     if (n_elements(xc) ne 0) then begin
@@ -59,6 +61,18 @@ for i=0L,param.totblocks-1 do begin
              endfor
           endif
        endif
-    endif
+    endif else begin
+       x1 = tree[i].bndbox[0,0] & x2 = tree[i].bndbox[1,0]
+       y1 = tree[i].bndbox[0,1] & y2 = tree[i].bndbox[1,1]
+       oplot,[x1,x2,x2,x1,x1],[y1,y1,y2,y2,y1],color=bcolor,thick=bthick,line=bline
+       if keyword_set(cell) then begin
+          xcl = findgen(nc)/float(nc)*(x2-x1)+x1 
+          ycl = findgen(nc)/float(nc)*(y2-y1)+y1 
+          for j=1,nc-1 do begin
+              oplot, [xcl[j],xcl[j]], [y1,y2],color=ccolor,thick=cthick,line=cline
+              oplot, [x1,x2], [ycl[j],ycl[j]],color=ccolor,thick=cthick,line=cline
+          endfor
+       endif
+    endelse
 endfor
 end
