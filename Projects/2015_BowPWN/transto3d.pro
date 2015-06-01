@@ -1,28 +1,53 @@
-pro transto3d,fname,sample=sample, xrange=xrange, yrange=yrange
+pro transto3d,n,var=var,sample=sample, xrange=xrange, yrange=yrange, hdf5=hdf5, nth=nth
 
+; For guitar nebula ============================================================================
+n=55
+xrange=[-1.e17,1.3e18]
+yrange=[0.,4.e17]
+sample=4
+; ==============================================================================================
+if keyword_set(chk) then begin
+   fname = 'PWN2d_hdf5_chk_'+string(n,format='(I4.4)') 
+   print, 'read check point file: '+fname   
+endif else begin 
+   fname = 'PWN2d_hdf5_plt_cnt_'+string(n,format='(I4.4)')
+   chk=0
+endelse
 if not keyword_set(sample) then sample=4
+if not keyword_set(var) then var='dens'
 
-;xra = [-2.17e17,2.51e18] & yra=[0.,8.e17]
-d=loaddata(fname,'dens',sample=sample,xCoord=r,yCoord=z)   ; [r, z]
-;d=loaddata(fname,'dens',sample=sample,xCoord=r,yCoord=z,xra=yra,yra=xra)   ; [r, z]
+if not keyword_set(xrange) then str_xra = '' $
+  else str_xra = 'yra=['+strtrim(xrange[0],2)+','+strtrim(xrange[1],1)+']'
+if not keyword_set(yrange) then str_yra = '' $
+  else str_yra = 'xra=['+strtrim(yrange[0],2)+','+strtrim(yrange[1],1)+']'
 
-sd = size(d,/dimension)
+if (keyword_set(xrange) and keyword_set(yrange)) then str_yra = ','+str_yra
 
-nth = sd[0]
+str_xyra = str_xra+str_yra
+if (strmid(str_xyra,0,1,/reverse) eq ']') then str_xyra = str_xyra+','
+
+strexe = execute("data = loaddata(fname,'"+var+"',"+str_xyra+"sample=sample,xCoord=yy,yCoord=x,time=time)")
+
+data=transpose(data)
+sz = size(data,/dimension)
+
+if not keyword_set(nth) then nth = sz[1]
 th = findgen(nth)/float(nth)*2.*!pi
 
-;tmpd3d = replicate({dd:d},nth)
+den3d_xyz = fltarr(sz[0],sz[1],sz[1])
+;den3d_xyz = fltarr(sz[0],sz[1]*2,sz[1]*2)
+for i=0,sz[0]-1 do begin
+   print, i,'     of',sz[0]
+   dcutx_rth = reform(data[i,*]) # replicate(1.,nth)   ; [r, th]
+   tv_polar,dcutx_rth,yy,th,xout=y,yout=z,imgout=dcutx_yz,/extrapol,/no_roff,/no_window
 
-;i=400
-stop
-den3d_xyz = fltarr(sd[1],sd[0]*2,sd[0]*2)
-for i=0,sd[1]-1 do begin
-   print, i,'     of',sd[1]
-   dcutz = reform(d[*,i]) # replicate(1.,nth)   ; [r, th]
-   tv_polar,dcutz,r,th,xout=x,yout=y,imgout=dcutz_xy,/extrapol,/no_roff,/no_window
-
-   den3d_xyz[i,*,*] = dcutz_xy > min(dcutz)
+   den3d_xyz[i,*,*] = dcutx_yz > min(data[i,*])
 endfor
+
+save,file=fname+'_3d',den3d_xyz,x,y,z
+
+
+if keyword_set(hdf5) then begin
 ; write hdf5 file
 print,'start to write hdf5'
 den3d_xyz = transpose(den3d_xyz)
@@ -42,6 +67,7 @@ H5D_WRITE, datasetID, den3d_xyz
 ;H5D_WRITE, datasetID2, uniform_coord
 
 H5F_CLOSE, fileID
+endif
 
 stop
 end
