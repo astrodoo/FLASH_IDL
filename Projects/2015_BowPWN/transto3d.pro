@@ -1,9 +1,9 @@
 pro transto3d,n,var=var,sample=sample, xrange=xrange, yrange=yrange, hdf5=hdf5, nth=nth
 
 ; For guitar nebula ============================================================================
-n=55
-xrange=[-1.e17,1.3e18]
-yrange=[0.,4.e17]
+n=117
+xrange=[-1.e17,2.5e18]
+yrange=[0.,7.e17]
 sample=4
 ; ==============================================================================================
 if keyword_set(chk) then begin
@@ -34,8 +34,8 @@ sz = size(data,/dimension)
 if not keyword_set(nth) then nth = sz[1]
 th = findgen(nth)/float(nth)*2.*!pi
 
-den3d_xyz = fltarr(sz[0],sz[1],sz[1])
-;den3d_xyz = fltarr(sz[0],sz[1]*2,sz[1]*2)
+;den3d_xyz = fltarr(sz[0],sz[1],sz[1])
+den3d_xyz = fltarr(sz[0],sz[1]*2,sz[1]*2)
 for i=0,sz[0]-1 do begin
    print, i,'     of',sz[0]
    dcutx_rth = reform(data[i,*]) # replicate(1.,nth)   ; [r, th]
@@ -44,7 +44,7 @@ for i=0,sz[0]-1 do begin
    den3d_xyz[i,*,*] = dcutx_yz > min(data[i,*])
 endfor
 
-save,file=fname+'_3d',den3d_xyz,x,y,z
+save,file=fname+'_3d.sav',den3d_xyz,x,y,z
 
 
 if keyword_set(hdf5) then begin
