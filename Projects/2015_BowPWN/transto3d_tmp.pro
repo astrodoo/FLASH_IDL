@@ -1,34 +1,39 @@
-pro transto3d,n,var=var,sample=sample, xrange=xrange, yrange=yrange, hdf5=hdf5, nth=nth
+pro transto3d_tmp,n,var=var,sample=sample, xrange=xrange, yrange=yrange, hdf5=hdf5, nth=nth
 
-; For guitar nebula ============================================================================
-n=337 ;117
-xrange=[-1.e17,2.5e18]
-yrange=[0.,7.e17]
-sample=4 ;3
-; ==============================================================================================
-if keyword_set(chk) then begin
-   fname = 'PWN2d_hdf5_chk_'+string(n,format='(I4.4)') 
-   print, 'read check point file: '+fname   
-endif else begin 
-   fname = 'PWN2d_hdf5_plt_cnt_'+string(n,format='(I4.4)')
-   chk=0
-endelse
-if not keyword_set(sample) then sample=4
-if not keyword_set(var) then var='dens'
+;; For guitar nebula ============================================================================
+;n=337 ;117
+;xrange=[-1.e17,2.5e18]
+;yrange=[0.,7.e17]
+;sample=4 ;3
+;; ==============================================================================================
+;if keyword_set(chk) then begin
+;   fname = 'PWN2d_hdf5_chk_'+string(n,format='(I4.4)') 
+;   print, 'read check point file: '+fname   
+;endif else begin 
+;   fname = 'PWN2d_hdf5_plt_cnt_'+string(n,format='(I4.4)')
+;   chk=0
+;endelse
+;if not keyword_set(sample) then sample=4
+;if not keyword_set(var) then var='dens'
+;
+;if not keyword_set(xrange) then str_xra = '' $
+;  else str_xra = 'yra=['+strtrim(xrange[0],2)+','+strtrim(xrange[1],1)+']'
+;if not keyword_set(yrange) then str_yra = '' $
+;  else str_yra = 'xra=['+strtrim(yrange[0],2)+','+strtrim(yrange[1],1)+']'
+;
+;if (keyword_set(xrange) and keyword_set(yrange)) then str_yra = ','+str_yra
+;
+;str_xyra = str_xra+str_yra
+;if (strmid(str_xyra,0,1,/reverse) eq ']') then str_xyra = str_xyra+','
+;
+;strexe = execute("data = loaddata(fname,'"+var+"',"+str_xyra+"sample=sample,xCoord=yy,yCoord=x,time=time)")
+;
+;data=transpose(data)
+restore,'tmp.sav'
+fname='tmp'
+data=d
+yy=y
 
-if not keyword_set(xrange) then str_xra = '' $
-  else str_xra = 'yra=['+strtrim(xrange[0],2)+','+strtrim(xrange[1],1)+']'
-if not keyword_set(yrange) then str_yra = '' $
-  else str_yra = 'xra=['+strtrim(yrange[0],2)+','+strtrim(yrange[1],1)+']'
-
-if (keyword_set(xrange) and keyword_set(yrange)) then str_yra = ','+str_yra
-
-str_xyra = str_xra+str_yra
-if (strmid(str_xyra,0,1,/reverse) eq ']') then str_xyra = str_xyra+','
-
-strexe = execute("data = loaddata(fname,'"+var+"',"+str_xyra+"sample=sample,xCoord=yy,yCoord=x,time=time)")
-
-data=transpose(data)
 sz = size(data,/dimension)
 
 if not keyword_set(nth) then nth = sz[1]

@@ -155,3 +155,84 @@ if not keyword_set(vp) then vp = 1.d10
 
 return, sqrt(spE / (4.d0*!dpi*d0*vs^2.*vp))
 end
+
+
+pro comp_bow
+
+; read data
+xra=[0.,3.e16]
+yra=[-5.e15,7e16]
+sample=1
+
+dir = '/d/d2/yoon/out_FLASH3.3_mhd/out_PWNe/out_PWN2d/out_guitar_head/dl_0.1/'
+fname='PWN2d_hdf5_plt_cnt_0500'
+d1 = loaddata(dir+fname,'dens',sample=sample,xCoord=y1,yCoord=x1,xra=xra,yra=yra,time=tt)
+d1 = transpose(d1)
+szd1 = size(d1,/dimension)
+
+bow1 = fltarr(szd1[0])
+smd1 = smooth(d1,10)
+for i=0,szd1[0]-1 do bow1[i] = y1[(where(smd1[i,*] eq max(smd1[i,*])))[0]]
+Rst1 = Rst(d0=1.67d-24*0.7)
+xoff1 = Rst1 + 3.e15
+x12_ind = where(x1 ge -xoff1)
+X12 = x1[x12_ind]
+bow1 = bow1[x12_ind]
+
+patch_ind = where((x1 ge 5.e15) and (x1 le 1.36e16))
+
+smd1_patch = smooth(d1[patch_ind,*],100)
+for j=0, n_elements(patch_ind)-1 do bow1[j+patch_ind[0]] = y1[(where(smd1_patch[j,*] eq max(smd1_patch[j,*])))[0]]
+
+
+;window,0
+;plot,x1,bow1,/iso
+;oplot,[x1[patch_ind[0]],x1[patch_ind[0]]],!y.crange,line=2
+;oplot,[x1[patch_ind[n_elements(patch_ind)-1]],x1[patch_ind[n_elements(patch_ind)-1]]],!y.crange,line=2
+;stop
+
+dir2 = '/d/d2/yoon/out_FLASH3.3_mhd/out_PWNe/out_PWN2d/out_guitar_head/dh_0.1/'
+d2 = loaddata(dir2+fname,'dens',sample=sample,xCoord=y2,yCoord=x2,xra=xra,yra=yra)
+d2 = transpose(d2)
+szd2 = size(d2,/dimension)
+bow2 = fltarr(szd2[0])
+smd2 = smooth(d2,10)
+for i=0,szd2[0]-1 do bow2[i] = y2[(where(smd2[i,*] eq max(smd2[i,*])))[0]]
+Rst2 = Rst(d0=1.67d-24/0.7)
+x22_ind = where(x2 ge -Rst2)
+X22 = x2[x22_ind]
+bow2 = bow2[x22_ind]
+
+dir3 = '/d/d2/yoon/out_FLASH3.3_mhd/out_PWNe/out_PWN2d/out_guitar_head/nochange_d/'
+d3 = loaddata(dir3+fname,'dens',sample=sample,xCoord=y3,yCoord=x3,xra=xra,yra=yra)
+d3 = transpose(d3)
+szd3 = size(d3,/dimension)
+bow3 = fltarr(szd3[0])
+smd3 = smooth(d3,10)
+for i=0,szd3[0]-1 do bow3[i] = y3[(where(smd3[i,*] eq max(smd3[i,*])))[0]]
+Rst3 = Rst(d0=1.67d-24)
+xoff3 = Rst3 + 3.e15
+x32_ind = where(x3 ge -xoff3)
+X32 = x3[x32_ind]
+bow3 = bow3[x32_ind]
+
+loadct,39,/sil
+;window,xs=szd1[0],ys=szd1[1]
+;tvcoord,alog(d1),x1,y1,/scale
+;plots,x1,bow1,color=fsc_color('magenta')
+mkeps,'guitar_head_comp',xs=20.,ys=20./2.2
+plot,x12,bow1,/iso,xra=[-5.e15,7.e16],yra=[0.,3.e16],/xst,/yst,/nodata,ytitle='y [cm]',xtitle='x [cm]',xmargin=[12.,0.9],ytickinterval=1.e16
+oplot,x12,bow1,color=250
+oplot,x22,bow2,color=50
+oplot,x32,bow3,color=0
+
+plots,0.,0.,/data,psym=dsym(16,/fill)
+
+legend,[textoidl('\nabla\rho_{0}<0'),textoidl('\nabla\rho_{0}>0'),textoidl('\rho_{0}=\rho_{0,init}')],color=[250,50,0],textcolor=[250,50,0],/left,/top,box=0, line=0
+
+epsfree
+
+
+
+stop
+end

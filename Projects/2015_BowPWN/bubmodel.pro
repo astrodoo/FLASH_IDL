@@ -5,26 +5,28 @@ if not keyword_set(yrange) then yrange = [0.,8.e18]
 if not keyword_set(time) then time = 3.45e11
 
 ; analytic bubble
-;Esp = 6.66d35
-;vw  = 6.d7
-;vp  = 1.d10
+Esp = 6.66d35
+vw  = 6.d7
+vp  = 1.d10
 
-Esp=1.d33
-vw=1.5d8
-vp=1.d10
-xrange=[-1.e18,3.e18]
-yrange=[0.,1.e18]
+;Esp=1.d33
+;vw=1.5d8
+;vp=1.d10
+;xrange=[-1.e18,3.e18]
+;yrange=[0.,1.e18]
 
-;d1 = 1.67d-24
-d1 = 2.76d-25
+d1 = 1.67d-24
+;d1 = 2.76d-25
 t1 = time
 r1 = (125./154./!pi)^0.2*(Esp/d1)^0.2*t1^0.6 
 l1 = time*vw
 bub1r = ring(l1,0.,r1)
 print,'location 1st bubble: ',l1
 
-ldisc1 = 5.61e18
-d2 = 1.67d-24
+;ldisc1 = 5.61e18
+ldisc1 = 1e19
+;d2 = 1.67d-24
+d2 = 1.67d-25
 t2 = time - (ldisc1/vw)
 l2 = t2*vw
 t2 = t2>0.
