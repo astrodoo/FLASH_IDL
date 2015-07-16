@@ -31,25 +31,25 @@ end
 
 pro bubcomb
 
-restore,file='relbub_norelv9_bubble.sav'
+restore,file='data/relbub_norelv9_bubble.sav'
 nrv9_shIn = shIn & nrv9_shOut = shOut & nrv9_t = time
-restore,file='relbub_norelv10_bubble.sav'
+restore,file='data/relbub_norelv10_bubble.sav'
 nrv10_shIn = shIn & nrv10_shOut = shOut & nrv10_t = time
-restore,file='relbub_norel0.6c_bubble.sav'
+restore,file='data/relbub_norel0.6c_bubble.sav'
 nr6c_shIn = shIn & nr6c_shOut = shout & nr6c_t = time
-restore,file='relbub_norel0.9c_bubble.sav'
+restore,file='data/relbub_norel0.9c_bubble.sav'
 nr9c_shIn = shIn & nr9c_shOut = shOut & nr9c_t = time
-restore,file='relbub_norel0.99c_bubble.sav'
+restore,file='data/relbub_norel0.99c_bubble.sav'
 nr99c_shIn = shIn & nr99c_shOut = shOut & nr99c_t = time
 
 L = 1.d13
-restore,file='relbub_rel0.33c_bubble.sav'
+restore,file='data/relbub_rel0.33c_bubble.sav'
 r33c_shIn = shIn*L & r33c_shOut = shout*L & r33c_t = time * L/!unit.c
-restore,file='relbub_rel0.6c_bubble.sav'
+restore,file='data/relbub_rel0.6c_bubble.sav'
 r6c_shIn = shIn*L & r6c_shOut = shout*L & r6c_t = time * L/!unit.c
-restore,file='relbub_rel0.9c_bubble.sav'
+restore,file='data/relbub_rel0.9c_bubble.sav'
 r9c_shIn = shIn*L & r9c_shOut = shout*L & r9c_t = time * L/!unit.c
-restore,file='relbub_rel0.99c_bubble.sav'
+restore,file='data/relbub_rel0.99c_bubble.sav'
 r99c_shIn = shIn*L & r99c_shOut = shout*L & r99c_t = time * L/!unit.c
 
 

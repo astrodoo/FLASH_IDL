@@ -71,14 +71,7 @@ psxs=20. & psys=psxs*ys/xs
 loadct,0,/sil
 mkeps,'guitar_head2',xs=psxs,ys=psys
 
-;maxd = max(d) & mind = min(d)
-;maxd = 5.d-23 & mind = 1.d-28
-maxd = max([d,d2]) & mind = min([d,d2])
-;tv,bytscl(alog10(d),max=alog10(maxd),min=alog10(mind)),float(x0)/xs*psxs, float(y0+dsz[1])/ys*psys,/centimeter $
-;  ,xsize=float(dsz[0])/xs*psxs, ysize=float(dsz[1])/ys*psys
-;plot,xx,yy,/xst,/yst,xr=[xx[0],xx[n_elements(xx)-1]],yr=[yy[0],yy[n_elements(yy)-1]] $
-;    ,/nodata,position=posnorm([x0,y0+dsz[1],x0+dsz[0],y0+dsz[1]*2],nx=xs,ny=ys),/norm $
-;    ,/noerase, xtickformat='(a1)', ytickinterval=1.e16
+maxd = max(d) & mind = min(d)
 tvcoord,bytscl(alog10(d),max=alog10(maxd),min=alog10(mind)),xx,yy,psx=float(dsz[0])/xs $
        ,pos=[x0/xs,(y0+dsz[1]+yplt)/ys],/axes,/black,ytickinterval=1.e16
 oplot,[xgr1,xgr1],!y.crange,line=1
@@ -105,12 +98,8 @@ oplot,[xgr1,xgr1],!y.crange,line=1
 oplot,[xgr2,xgr2],!y.crange,line=1
 
 loadct,0,/sil
-;tv,bytscl(alog10(reverse(d2,2)),max=alog10(max(d2)),min=alog10(min(d2))),float(x0)/xs*psxs, float(y0)/ys*psys,/centimeter $
-;  ,xsize=float(dsz[0])/xs*psxs, ysize=float(dsz[1])/ys*psys
-;plot,xx,-yy,/xst,/yst,xr=[xx[0],xx[n_elements(xx)-1]],yr=[-yy[n_elements(yy)-1],-yy[0]] $
-;    ,/nodata,position=posnorm([x0,y0,x0+dsz[0],y0+dsz[1]],nx=xs,ny=ys),/norm $
-;    , xtitle='x [cm]',/noerase, ytickinterval=1.e16
-tvcoord,bytscl(alog10(reverse(d2,2)),max=alog10(maxd),min=alog10(mind)),xx,-yy,psx=float(dsz[0])/xs $
+maxd2 = max(d2) & mind2 = min(d2)
+tvcoord,bytscl(alog10(reverse(d2,2)),max=alog10(maxd2),min=alog10(mind2)),xx,-yy,psx=float(dsz[0])/xs $
        ,pos=[x0/xs,(y0+yplt)/ys],/axes,/black,ytickinterval=1.e16,xtickformat='(a1)'
 oplot,[xgr1,xgr1],!y.crange,line=1
 oplot,[xgr2,xgr2],!y.crange,line=1
@@ -139,7 +128,11 @@ xyouts,0.04,0.45,/norm,'y [cm]',orientation=90
 
 loadct,0,/sil
 
-color_bar,/right,position=posnorm([x0+dsz[0]+20,y0+yplt,x0+dsz[0]+70,y0+dsz[1]*2+yplt],nx=xs,ny=ys),/norm,lim=[mind,maxd],/log, bartitle=textoidl('\rho [g cm^{-3}]'),titlegap=0.12
+color_bar,/right,position=posnorm([x0+dsz[0]+20,y0+dsz[1]+yplt,x0+dsz[0]+70,y0+dsz[1]*2+yplt],nx=xs,ny=ys),/norm,lim=[mind,maxd],/log ;, bartitle=textoidl('\rho [g cm^{-3}]'),titlegap=0.12
+color_bar,/right,position=posnorm([x0+dsz[0]+20,y0+yplt,x0+dsz[0]+70,y0+dsz[1]+yplt],nx=xs,ny=ys),/norm,lim=[mind2,maxd2],/log
+
+xyouts,0.98,0.45,/normal,textoidl('\rho [g cm^{-3}]'),orientation=90.
+
 
 
 epsfree
