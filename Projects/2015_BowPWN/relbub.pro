@@ -92,7 +92,7 @@ oplot,ana_t,ana_sh,color=254,thick=10
 
 strvw = textoidl('v_{wind}=')
 legend,strvw+['0.33c','0.6c','0.9c','0.99c'],color=[0,50,150,210],textcolor=[0,50,150,210],/left,/top,box=0
-legend,['analytic solution','non-relativistic algorithm','relativistic algoritm'],color=[254,0,0] $
+legend,['analytic solution','non-relativistic run','relativistic run'],color=[254,0,0] $
       ,textcolor=[254,0,0],/right,/bottom,box=0,line=[0,0,2],thick=[10,2,2]
 epsfree
 stop

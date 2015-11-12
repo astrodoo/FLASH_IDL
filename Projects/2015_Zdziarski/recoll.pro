@@ -1,16 +1,21 @@
 pro recoll
 device,decomposed=0
 
-;restore,file='jet_snap_1e38lw.sav'
-;restore,file='jet_snap_1e38.sav'
+;dir='/d/d7/yoon/out_FLASH3.3_mhd/out_Jet_SphWind/re-coll/M30lateral0.01/'
+;fname='JetSet_hdf5_plt_cnt_0439'
+dir='/d/d7/yoon/out_FLASH3.3_mhd/out_Jet_SphWind/re-coll/boundaryJet_3E37/'
+fname='JetSet_hdf5_plt_cnt_3024'
+;dir='/d/d7/yoon/out_FLASH3.3_mhd/out_Jet_SphWind/re-coll/boundaryJet38/'
+;fname='JetSet_hdf5_plt_cnt_3032'
 
-;dir= '/d/d7/yoon/out_FLASH3.3_mhd/out_Jet_SphWind/re-coll/L6E37_M30_lw_lg/'
-dir= '/d/d7/yoon/out_FLASH3.3_mhd/out_Jet_SphWind/re-coll/L38_M30_lw_lg/'
-fname = 'JetSet_hdf5_plt_cnt_2963'
-sample=4
 
-jyz = reform(loaddata(dir+fname,'jet',sample=sample,xCoord=x,yCoord=y,zCoord=z,xrange=[-2.e12,-2.e12]))
-v3yz = reform(loaddata(dir+fname,'velz',sample=sample,xrange=[-2.e12,-2.e12]))
+sample=0.
+dx=9.6e11/2.
+dz=1.6e12 
+ 
+
+jyz = reform(loaddata(dir+fname,'jet',sample=sample,xCoord=x,yCoord=y,zCoord=z,xrange=[-2.e12,-2.e12],yra=[-dx,dx],zra=[0.,dz],time=time))
+v3yz = reform(loaddata(dir+fname,'velz',sample=sample,xrange=[-2.e12,-2.e12],yra=[-dx,dx],zra=[0.,dz]))
 
 zcut0 = 0.
 zcind = (where(z ge zcut0))[0]
@@ -23,7 +28,7 @@ v3yz = reform(v3yz[*,zcind:nz-1])
 nz2 = n_elements(z)
 velj = 3.d9
 jv = jyz*abs(v3yz)/velj
-jcrit = 0.95
+jcrit = 0.9
 
 jyl = fltarr(nz2) & jyr = fltarr(nz2)
 for i=0,nz2-1 do begin
@@ -37,13 +42,13 @@ for i=0,nz2-1 do begin
     endelse
 endfor
 
-;save,file='recoll_1e38lw.sav',z,jyl,jyr,time
-;save,file='recoll_6e37.sav',z,jyl,jyr,time
-save,file='recoll_1e38.sav',z,jyl,jyr,time
+;save,file='recoll_1e37.sav',z,jyl,jyr,time
+save,file='recoll_3e37.sav',z,jyl,jyr,time
+;save,file='recoll_1e38.sav',z,jyl,jyr,time
 
 loadct,0,/sil
 window,0
-plot,jyl,z,xtitle='y [cm]',ytitle='z [cm]',/iso,xrange=[-3.e12,3.e12],yrange=[0.,1.5e13],/xst,/yst
+plot,jyl,z,xtitle='y [cm]',ytitle='z [cm]',/iso,/xst,/yst,xra=[-dx,dx],yra=[0.,1.5e12]
 oplot,jyr,z
 
 stop

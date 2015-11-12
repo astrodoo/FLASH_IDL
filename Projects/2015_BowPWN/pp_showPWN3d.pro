@@ -1,6 +1,7 @@
 pro pp_showPWN3d,ps=ps
 
-d = loaddata('/d/d7/yoon/out_FLASH3.3_mhd/out_PWN3d/tst_PWN3d/PWN3d_hdf5_plt_cnt_0071','dens' $
+;d = loaddata('/d/d7/yoon/out_FLASH3.3_mhd/out_PWN3d/tst_PWN3d/PWN3d_hdf5_plt_cnt_0071','dens' $
+d = loaddata('/d/d2/yoon/out_FLASH3.3_mhd/out_PWNe/out_PWN3d/out_PWN3d_600kms_45deg_highRes/PWN3d_hdf5_plt_cnt_0071','dens' $
              ,xra=[-1.e18,1.e18],yra=[-5.e17,5.e17],zra=[-1.e18,1.e18],xCoord=x,yCoord=y,lref=lref,time=t)
 
 sd = size(d,/dimension)

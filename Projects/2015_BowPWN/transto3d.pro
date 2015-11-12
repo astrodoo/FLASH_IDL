@@ -2,26 +2,29 @@ pro transto3d, hdf5=hdf5, nth=nth
 
 ;dir = '/d/d2/yoon/out_FLASH3.3_mhd/out_PWNe/out_PWN2d/out_PWN2d_guitar2/' 
 ;dir = '/d/d2/yoon/out_FLASH3.3_mhd/out_PWNe/out_PWN2d/out_PWN2d_guitar_elmfist_0.5/'
-dir = '/d/d2/yoon/out_FLASH3.3_mhd/out_PWNe/out_PWN2d/out_PWN2d_guitar_0.5/'
-restore,dir+'surfb.sav'
-fname = 'surfb'
+;dir = '/d/d2/yoon/out_FLASH3.3_mhd/out_PWNe/out_PWN2d/out_PWN2d_guitar_0.5/'
+;dir = '/d/d2/yoon/out_FLASH3.3_mhd/out_PWNe/out_PWN2d/out_PWN2d_guitar/'
+dir = '/d/d2/yoon/out_FLASH3.3_mhd/out_PWNe/out_PWN2d/out_PWN2d_guitar_60inc/'
+;dir = '/d/d2/yoon/out_FLASH3.3_mhd/out_PWNe/out_PWN2d/out_PWN2d_guitar_30inc/'
+restore,dir+'phot.sav'
+fname = 'phot'
 yy=y
 
-sz = size(surfb,/dimension)
+sz = size(phot,/dimension)
 
 if not keyword_set(nth) then nth = sz[1]
 th = findgen(nth)/float(nth)*2.*!pi
 
-surfb3d = fltarr(sz[0],sz[1]*2,sz[1]*2)
+phot3d = fltarr(sz[0],sz[1]*2,sz[1]*2)
 for i=0,sz[0]-1 do begin
    print, i,'     of',sz[0]
-   dcutx_rth = reform(surfb[i,*]) # replicate(1.,nth)   ; [r, th]
+   dcutx_rth = reform(phot[i,*]) # replicate(1.,nth)   ; [r, th]
    tv_polar,dcutx_rth,yy,th,xout=y,yout=z,imgout=dcutx_yz,/extrapol,/no_roff,/no_window
 
-   surfb3d[i,*,*] = dcutx_yz > min(surfb[i,*])
+   phot3d[i,*,*] = dcutx_yz > min(phot[i,*])
 endfor
 
-save,file=dir+fname+'_3d.sav',surfb3d,x,y,z
+save,file=dir+fname+'_3d.sav',phot3d,x,y,z
 
 if keyword_set(hdf5) then begin
 ; write hdf5 file
