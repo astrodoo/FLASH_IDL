@@ -1,12 +1,12 @@
 pro bubmodel,time=time, xrange=xrange, yrange=yrange
 
-if not keyword_set(xrange) then xrange = [-1.e18,3.e19]
-if not keyword_set(yrange) then yrange = [0.,8.e18]
+if not keyword_set(xrange) then xrange = [-1.e18,3.e18]
+if not keyword_set(yrange) then yrange = [-1.e18,1.e18]
 if not keyword_set(time) then time = 3.45e11
 
 ; analytic bubble
-Esp = 6.66d35
-vw  = 6.d7
+Esp = 1.d36 ;4.3d33 ;6.66d35
+vw  = 1.d8 ;6.d6 ;6.d7
 vp  = 1.d10
 
 ;Esp=1.d33
@@ -15,7 +15,7 @@ vp  = 1.d10
 ;xrange=[-1.e18,3.e18]
 ;yrange=[0.,1.e18]
 
-d1 = 1.67d-24
+d1 = 1.67d-23
 ;d1 = 2.76d-25
 t1 = time
 r1 = (125./154./!pi)^0.2*(Esp/d1)^0.2*t1^0.6 
@@ -55,10 +55,10 @@ plot,xrange,yrange,/nodata,/xst,/yst,/iso,xtitle='x [cm]',ytitle='y [cm]'
 plots,[0.,0.],psym=7,symsize=2
 oplot,[l1,l1],!y.crange,line=2
 oplot,bub1r[0,*],bub1r[1,*]
-oplot,[l2,l2],!y.crange,line=2
-oplot,bub2r[0,*],bub2r[1,*]
+;oplot,[l2,l2],!y.crange,line=2
+;oplot,bub2r[0,*],bub2r[1,*]
 
-oplot,[lh1,lh1],!y.crange,line=2
+;oplot,[lh1,lh1],!y.crange,line=2
 
 ;oplot,xx,yy
 

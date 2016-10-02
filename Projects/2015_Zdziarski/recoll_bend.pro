@@ -315,7 +315,7 @@ winxs = pltx0+3*pltxs+30.+xgap & winys = plty0+pltys+100.
 ;xyouts,(pltx0+2*pltxs+xgap+20.)/winxs,(plty0+pltys-40)/winys,/norm,'P1e38'
 ;
 ;epsfree
-
+loadct,39,/sil
 mkeps,'recoll_bend_comp2_dev',xs=20,ys=20.*6./8.
 dev1 = (linyl1*linyl1-jyl1[0:ycutind1]*jyl1[0:ycutind1]) / (linyl1*linyl1)
 dev1[where(z1 le 5.e11)] = dev1[where(z1 le 5.e11)]*0.1
@@ -323,10 +323,10 @@ dev1[where(z1 le 5.e11)] = dev1[where(z1 le 5.e11)]*0.1
 dev2 = (linyl2*linyl2-jyl2[0:ycutind2]*jyl2[0:ycutind2]) / (linyl2*linyl2)
 dev2[where(z1 le 5.e11)] = dev2[where(z1 le 5.e11)]*0.1
 
-plot,z1[0:ycutind1],smooth(dev1,30),xtitle='z [cm]',ytitle='fractional deviation',/xst,/yst,yra=[-1.,1.]
-oplot,z2[0:ycutind2],smooth(dev2,30),color=254
+plot,z1[0:ycutind1],smooth(dev1,30),xtitle='z [cm]',ytitle='fractional deviation ('+textoidl('\sigma^{2}')+')',/xst,/yst,yra=[-1.,1.],thick=4,charthick=2.5
+oplot,z2[0:ycutind2],smooth(dev2,30),color=254,thick=4
 oplot,!x.crange,[0.,0.],line=2
-legend,['P3e37','P1e38'],/right,/top,box=0,textcolor=[0,254],color=[0,254],line=0
+legend,['P3e37','P1e38'],/right,/top,box=0,textcolor=[0,254],color=[0,254],line=0,charthick=2.5,thick=4
 epsfree
 stop
 end
